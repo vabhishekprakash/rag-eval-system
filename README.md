@@ -160,13 +160,13 @@ The evaluation framework (Phase 3) will quantify:
 
 ## Technical Decisions
 
-**Why local LLM over API?**  
+**local LLM over API:**  
 No rate limits, no costs, full privacy, works offline — and more importantly, demonstrates system design skills beyond "call GPT-4 API."
 
-**Why FAISS over vector databases?**  
+**FAISS over vector databases:**  
 Simplicity and portability. The entire vector store is a few files that can be versioned and moved. No server dependencies.
 
-**Why sentence-transformers over OpenAI embeddings?**  
+**sentence-transformers over OpenAI embeddings:**  
 Same reason — local, free, reproducible. `all-MiniLM-L6-v2` is small (80MB) but performs well for most domains.
 
 ---
