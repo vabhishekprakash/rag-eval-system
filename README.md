@@ -147,15 +147,6 @@ Sources: ['Vallamalla-Abhishek-Prakash Resume.pdf']
 
 ---
 
-## Roadmap
-
-- [x] Phase 1 — Document ingestion pipeline (loader, chunker, embedder)
-- [x] Phase 2 — Retrieval + LLM answer generation with source attribution
-- [ ] Phase 3 — RAGAs evaluation + ablation study comparing chunking strategies
-- [ ] Phase 4 — Streamlit interactive demo + deployment
-
----
-
 ## Why This Project Matters
 
 Retrieval quality determines RAG performance, yet most implementations treat chunking as a one-line decision. This project treats it as a research question — systematically measuring how chunking strategy, chunk size, and embedding model affect answer quality on domain-specific corpora.
