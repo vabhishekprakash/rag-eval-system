@@ -2,8 +2,6 @@
 
 A domain-specific Retrieval-Augmented Generation (RAG) pipeline built to systematically compare chunking strategies and measure retrieval quality using standard evaluation metrics.
 
-> **Status:** Phase 2 complete — full RAG pipeline operational with local LLM inference.
-
 ---
 
 ## What This Project Does
@@ -11,6 +9,20 @@ A domain-specific Retrieval-Augmented Generation (RAG) pipeline built to systema
 Most RAG tutorials stop at "it works." This project goes further — it asks *how well* does it work, and *why*.
 
 The system ingests a corpus of domain-specific documents, chunks them using multiple strategies, embeds them into a vector store, and retrieves answers to natural language questions using a local LLM. Every design decision — chunk size, chunking strategy, embedding model — is treated as an experimental variable with measurable outcomes.
+
+---
+
+## Evaluation Results
+
+| Strategy | Chunk Size | Faithfulness | Answer Relevancy |
+|---|---|---|---|
+| Fixed | 256 | 1.0000 | 0.8968 |
+| Fixed | 512 | 1.0000 | N/A |
+| Fixed | 1024 | 1.0000 | 0.9756 |
+| Semantic | — | 1.0000 | 0.9756 |
+
+**Key finding:** All strategies maintain perfect faithfulness (no hallucination).
+Semantic chunking and fixed-size 1024 achieve highest answer relevancy (0.9756).
 
 ---
 
