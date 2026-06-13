@@ -6,9 +6,9 @@ A domain-specific Retrieval-Augmented Generation (RAG) pipeline built to systema
 
 ## What This Project Does
 
-Most RAG tutorials stop at "it works." This project goes further — it asks *how well* does it work, and *why*.
+Most RAG tutorials stop at "it works." This project goes further it asks *how well* does it work, and *why*.
 
-The system ingests a corpus of domain-specific documents, chunks them using multiple strategies, embeds them into a vector store, and retrieves answers to natural language questions using a local LLM. Every design decision — chunk size, chunking strategy, embedding model — is treated as an experimental variable with measurable outcomes.
+The system ingests a corpus of domain-specific documents, chunks them using multiple strategies, embeds them into a vector store, and retrieves answers to natural language questions using a local LLM. Every design decision like chunk size, chunking strategy, embedding model is treated as an experimental variable with measurable outcomes.
 
 ---
 
@@ -73,13 +73,13 @@ Raw Documents (PDF, TXT, MD, HTML)
 ```
 rag-eval-system/
 ├── ingestion/
-│   ├── loader.py           # multi-format document loading
+│   ├── loader.py           # multiformat document loading
 │   ├── chunker.py          # fixed + semantic chunking strategies
 │   └── embedder.py         # sentence-transformer embeddings + FAISS
 ├── retrieval/
 │   ├── retriever.py        # vector similarity search
 │   └── generator.py        # LLM answer generation with Ollama
-├── evaluation/             # [Phase 3 - in progress]
+├── evaluation/             # RAGAs metrics + ablation study
 │   ├── metrics.py          # RAGAs evaluation framework
 │   └── experiments.py      # ablation studies across strategies
 ├── data/raw/               # document corpus (not tracked)
@@ -122,7 +122,11 @@ ollama pull mistral
 
 ### Add Your Documents
 
-Drop PDF, TXT, MD, or HTML files into `data/raw/`
+Create a `data/raw/` folder in the project root and drop your PDF, TXT, MD, or HTML files into it. This folder is intentionally excluded from the repository to protect sensitive documents.
+
+```bash
+mkdir -p data/raw
+```
 
 ### Run the Pipeline
 
@@ -159,9 +163,17 @@ Sources: ['Vallamalla-Abhishek-Prakash Resume.pdf']
 
 ---
 
+## Demo
+
+![RAG Eval System Demo](https://github.com/user-attachments/assets/75096e9f-ed63-4f92-8158-66217c90e9f7)
+
+![Retrieved Chunks View](https://github.com/user-attachments/assets/63df0339-5dcb-47b5-8abf-b29372e69329)
+
+
+
 ## Why This Project Matters
 
-Retrieval quality determines RAG performance, yet most implementations treat chunking as a one-line decision. This project treats it as a research question — systematically measuring how chunking strategy, chunk size, and embedding model affect answer quality on domain-specific corpora.
+Retrieval quality determines RAG performance, yet most implementations treat chunking as a one line decision. This project treats it as a research question systematically measuring how chunking strategy, chunk size, and embedding model affect answer quality on domain-specific corpora.
 
 The evaluation framework (Phase 3) will quantify:
 - **Faithfulness** — does the answer stay grounded in retrieved context?
@@ -179,7 +191,7 @@ No rate limits, no costs, full privacy, works offline — and more importantly, 
 Simplicity and portability. The entire vector store is a few files that can be versioned and moved. No server dependencies.
 
 **sentence-transformers over OpenAI embeddings:**  
-Same reason — local, free, reproducible. `all-MiniLM-L6-v2` is small (80MB) but performs well for most domains.
+Same reason local, free, reproducible. `all-MiniLM-L6-v2` is small (80MB) but performs well for most domains.
 
 ---
 
@@ -193,4 +205,4 @@ B.Tech CSE (AI & ML) — Final Year
 
 ## License
 
-MIT License — free to use, modify, and distribute with attribution.
+MIT License free to use, modify, and distribute with attribution.
