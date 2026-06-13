@@ -12,6 +12,16 @@ The system ingests a corpus of domain-specific documents, chunks them using mult
 
 ---
 
+## Demo
+
+**1. Answer Generation with Source Attribution**
+![RAG Eval System Demo](https://github.com/user-attachments/assets/75096e9f-ed63-4f92-8158-66217c90e9f7)
+
+**2. Retrieved Chunks View**
+![Retrieved Chunks View](https://github.com/user-attachments/assets/63df0339-5dcb-47b5-8abf-b29372e69329)
+
+---
+
 ## Evaluation Results
 
 | Strategy | Chunk Size | Faithfulness | Answer Relevancy |
@@ -163,14 +173,6 @@ Sources: ['Vallamalla-Abhishek-Prakash Resume.pdf']
 
 ---
 
-## Demo
-
-![RAG Eval System Demo](https://github.com/user-attachments/assets/75096e9f-ed63-4f92-8158-66217c90e9f7)
-
-![Retrieved Chunks View](https://github.com/user-attachments/assets/63df0339-5dcb-47b5-8abf-b29372e69329)
-
-
-
 ## Why This Project Matters
 
 Retrieval quality determines RAG performance, yet most implementations treat chunking as a one line decision. This project treats it as a research question systematically measuring how chunking strategy, chunk size, and embedding model affect answer quality on domain-specific corpora.
@@ -185,7 +187,7 @@ The evaluation framework (Phase 3) will quantify:
 ## Technical Decisions
 
 **local LLM over API:**  
-No rate limits, no costs, full privacy, works offline — and more importantly, demonstrates system design skills beyond "call GPT-4 API."
+No rate limits, no costs, full privacy, works offline and more importantly, demonstrates system design skills beyond "call GPT-4 API."
 
 **FAISS over vector databases:**  
 Simplicity and portability. The entire vector store is a few files that can be versioned and moved. No server dependencies.
