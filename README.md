@@ -12,16 +12,6 @@ The system ingests a folder of documents, chunks them with different strategies,
 
 ---
 
-## Demo
-
-**1. Answer Generation with Source Attribution**
-![RAG Eval System Demo](https://github.com/user-attachments/assets/75096e9f-ed63-4f92-8158-66217c90e9f7)
-
-**2. Retrieved Chunks View**
-![Retrieved Chunks View](https://github.com/user-attachments/assets/63df0339-5dcb-47b5-8abf-b29372e69329)
-
----
-
 ## Evaluation Status
 
 `evaluation/run_eval.py` runs four configurations (fixed-size chunks of 256, 512 and 1024 characters, and semantic chunking) and scores each one with RAGAs faithfulness and answer relevancy, using the local Mistral model as the judge.
