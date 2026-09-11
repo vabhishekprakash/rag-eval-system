@@ -1,14 +1,14 @@
 # RAG Evaluation System
 
-A domain-specific Retrieval-Augmented Generation (RAG) pipeline built to systematically compare chunking strategies and measure retrieval quality using standard evaluation metrics.
+A local Retrieval-Augmented Generation (RAG) pipeline built to compare chunking strategies and measure answer quality with RAGAs.
 
 ---
 
 ## What This Project Does
 
-Most RAG tutorials stop at "it works." This project goes further it asks *how well* does it work, and *why*.
+Most RAG tutorials stop at "it works." This project asks how well it works, and why.
 
-The system ingests a corpus of domain-specific documents, chunks them using multiple strategies, embeds them into a vector store, and retrieves answers to natural language questions using a local LLM. Every design decision like chunk size, chunking strategy, embedding model is treated as an experimental variable with measurable outcomes.
+The system ingests a folder of documents, chunks them with different strategies, embeds the chunks into a FAISS vector store, and answers questions with a local LLM. Chunk size and chunking strategy are treated as experimental variables, and an evaluation harness scores each configuration on the same questions.
 
 ---
 
@@ -22,17 +22,11 @@ The system ingests a corpus of domain-specific documents, chunks them using mult
 
 ---
 
-## Evaluation Results
+## Evaluation Status
 
-| Strategy | Chunk Size | Faithfulness | Answer Relevancy |
-|---|---|---|---|
-| Fixed | 256 | 1.0000 | 0.8968 |
-| Fixed | 512 | 1.0000 | N/A |
-| Fixed | 1024 | 1.0000 | 0.9756 |
-| Semantic | — | 1.0000 | 0.9756 |
+`evaluation/run_eval.py` runs four configurations (fixed-size chunks of 256, 512 and 1024 characters, and semantic chunking) and scores each one with RAGAs faithfulness and answer relevancy, using the local Mistral model as the judge.
 
-**Key finding:** All strategies maintain perfect faithfulness (no hallucination).
-Semantic chunking and fixed-size 1024 achieve highest answer relevancy (0.9756).
+An earlier run used only two test questions over personal documents. That is too few to compare strategies, so those numbers have been removed. Results will be published here once a public evaluation set and corpus are committed, together with the command that produces them.
 
 ---
 
@@ -60,12 +54,13 @@ Raw Documents (PDF, TXT, MD, HTML)
 
 ## Current Features
 
-1) **Multi-format document loading** — PDF, TXT, MD, HTML with automatic format detection  
-2) **Configurable chunking** — fixed-size with overlap + semantic boundary detection  
-3) **Local embeddings** — sentence-transformers, no API costs  
-4) **FAISS vector search** — efficient similarity retrieval with persistence  
-5) **Local LLM inference** — Mistral 7B via Ollama, fully offline  
-6) **Source attribution** — every answer tracks which files it came from  
+1) **Multi-format document loading:** PDF, TXT, MD and HTML, with automatic format detection
+2) **Configurable chunking:** fixed-size with overlap, plus semantic boundary detection
+3) **Local embeddings:** sentence-transformers, no API costs
+4) **FAISS vector search:** similarity retrieval with a persisted index
+5) **Local LLM inference:** Mistral 7B via Ollama, fully offline
+6) **Source attribution:** every answer lists the files it came from
+7) **Streamlit app:** ask questions and inspect the retrieved chunks in a browser
 
 ---
 
@@ -73,8 +68,8 @@ Raw Documents (PDF, TXT, MD, HTML)
 
 | Strategy | How it works | Configuration |
 |---|---|---|
-| **Fixed-size** | Splits every N tokens with K overlap | `chunk_size=512, chunk_overlap=64` |
-| **Semantic** | Splits on meaning shift using embeddings | `breakpoint_threshold=95` (percentile) |
+| **Fixed-size** | Splits text into chunks of up to N characters, with K characters of overlap | `chunk_size=512, chunk_overlap=64` |
+| **Semantic** | Splits where the meaning shifts, using embeddings | `breakpoint_threshold=95` (percentile) |
 
 ---
 
@@ -82,16 +77,18 @@ Raw Documents (PDF, TXT, MD, HTML)
 
 ```
 rag-eval-system/
+├── app/
+│   └── streamlit_app.py    # browser UI for questions and retrieved chunks
 ├── ingestion/
-│   ├── loader.py           # multiformat document loading
+│   ├── loader.py           # multi-format document loading
 │   ├── chunker.py          # fixed + semantic chunking strategies
 │   └── embedder.py         # sentence-transformer embeddings + FAISS
 ├── retrieval/
 │   ├── retriever.py        # vector similarity search
 │   └── generator.py        # LLM answer generation with Ollama
-├── evaluation/             # RAGAs metrics + ablation study
-│   ├── metrics.py          # RAGAs evaluation framework
-│   └── experiments.py      # ablation studies across strategies
+├── evaluation/
+│   ├── metrics.py          # RAGAs evaluation (faithfulness, answer relevancy)
+│   └── run_eval.py         # runs and compares the four chunking configurations
 ├── data/raw/               # document corpus (not tracked)
 ├── vectorstore/            # persisted FAISS index (not tracked)
 └── requirements.txt
@@ -101,12 +98,13 @@ rag-eval-system/
 
 ## Tech Stack
 
-- **LangChain** — RAG pipeline orchestration
-- **Sentence-Transformers** — all-MiniLM-L6-v2 embeddings
-- **FAISS** — vector similarity search (CPU)
-- **Ollama + Mistral 7B** — local LLM inference (no API costs)
-- **RAGAs** — retrieval evaluation metrics *(Phase 3)*
-- **Python 3.10+** — core runtime
+- **LangChain:** RAG pipeline orchestration
+- **Sentence-Transformers:** all-MiniLM-L6-v2 embeddings
+- **FAISS:** vector similarity search (CPU)
+- **Ollama + Mistral 7B:** local LLM inference and evaluation judge
+- **RAGAs:** faithfulness and answer relevancy metrics
+- **Streamlit:** browser UI
+- **Python 3.10+**
 
 ---
 
@@ -114,7 +112,7 @@ rag-eval-system/
 
 ### Prerequisites
 - Python 3.10 or higher
-- [Ollama](https://ollama.com/download) installed with Mistral model
+- [Ollama](https://ollama.com/download) installed with the Mistral model
 
 ### Setup
 
@@ -132,7 +130,7 @@ ollama pull mistral
 
 ### Add Your Documents
 
-Create a `data/raw/` folder in the project root and drop your PDF, TXT, MD, or HTML files into it. This folder is intentionally excluded from the repository to protect sensitive documents.
+Create a `data/raw/` folder in the project root and put your PDF, TXT, MD or HTML files in it. This folder is excluded from the repository so private documents never get committed.
 
 ```bash
 mkdir -p data/raw
@@ -161,50 +159,51 @@ print(f"Answer: {result['answer']}")
 print(f"Sources: {result['sources']}")
 ```
 
----
+### Run the Evaluation
 
-## Example Output
+From the project root:
 
+```bash
+python evaluation/run_eval.py
 ```
-Question: What is the student name?
-Answer: The student name is VALLAMALLA ABHISHEK PRAKASH (237Y1A66C5).
-Sources: ['Vallamalla-Abhishek-Prakash Resume.pdf']
+
+This builds one vector store per configuration, answers the test questions in `run_eval.py`, scores them with RAGAs and writes `evaluation_results.json`.
+
+### Run the App
+
+```bash
+streamlit run app/streamlit_app.py
 ```
 
 ---
 
 ## Why This Project Matters
 
-Retrieval quality determines RAG performance, yet most implementations treat chunking as a one line decision. This project treats it as a research question systematically measuring how chunking strategy, chunk size, and embedding model affect answer quality on domain-specific corpora.
-
-The evaluation framework (Phase 3) will quantify:
-- **Faithfulness** — does the answer stay grounded in retrieved context?
-- **Answer Relevancy** — does it actually address the question asked?
-- **Context Recall** — did retrieval surface the right information?
+Retrieval quality decides how good a RAG system's answers are, yet most implementations treat chunking as a one-line decision. This project treats it as an experiment: it measures how chunking strategy and chunk size affect answer quality on the same set of questions.
 
 ---
 
 ## Technical Decisions
 
-**local LLM over API:**  
-No rate limits, no costs, full privacy, works offline and more importantly, demonstrates system design skills beyond "call GPT-4 API."
+**Local LLM over an API:**
+No rate limits, no costs, full privacy, and it works offline. The same local model also acts as the RAGAs judge, so the evaluation needs no API key either.
 
-**FAISS over vector databases:**  
-Simplicity and portability. The entire vector store is a few files that can be versioned and moved. No server dependencies.
+**FAISS over a vector database:**
+Simplicity and portability. The whole vector store is a few files that can be versioned and moved, with no server to run.
 
-**sentence-transformers over OpenAI embeddings:**  
-Same reason local, free, reproducible. `all-MiniLM-L6-v2` is small (80MB) but performs well for most domains.
+**sentence-transformers over OpenAI embeddings:**
+Local, free and reproducible. `all-MiniLM-L6-v2` is small (about 80 MB) and performs well for most domains.
 
 ---
 
 ## Author
 
-**Vallamalla Abhishek Prakash**  
-B.Tech CSE (AI & ML) — Final Year  
-[GitHub](https://github.com/vabhishekprakash) · [LinkedIn](https://linkedin.com/in/vabhishekprakash)
+**Vallamalla Abhishek Prakash**
+B.Tech CSE (AI & ML), final year
+[GitHub](https://github.com/vabhishekprakash) · [LinkedIn](https://www.linkedin.com/in/vallamalla-abhishek-prakash)
 
 ---
 
 ## License
 
-MIT License free to use, modify, and distribute with attribution.
+MIT License. See [LICENSE](LICENSE).
