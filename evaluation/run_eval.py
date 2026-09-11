@@ -106,7 +106,7 @@ def compare_strategies():
         print(f"\nStrategy: {cfg['strategy']}, Chunk Size: {cfg.get('chunk_size', 'N/A')}")
         print(f"  Faithfulness:      {metrics.get('faithfulness', 0):.4f}")
         print(f"  Answer Relevancy:  {metrics.get('answer_relevancy', 0):.4f}")
-        print(f"  Context Recall:    {metrics.get('context_recall', 0):.4f}")
+        
     print("="*70)
     
     return results
