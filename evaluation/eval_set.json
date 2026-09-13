@@ -1,4 +1,229 @@
 {
-  "corpus": "OCPP 1.6 edition 2 specification, 2017-09-28",
-  "questions": []
+  "corpus": "OCPP 1.6 edition 2 and OCPP-J 1.6 specifications",
+  "questions": [
+    {
+      "id": "q01",
+      "type": "lookup",
+      "question": "Which message does the Charge Point send to report a status change or error, and which side receives it?",
+      "ground_truth": "StatusNotification.req, sent by the Charge Point to the Central System",
+      "source": "4.9",
+      "notes": ""
+    },
+    {
+      "id": "q02",
+      "type": "lookup",
+      "question": "Which fields are required in BootNotification.req?",
+      "ground_truth": "chargePointModel, chargePointVendor",
+      "source": "6.3",
+      "notes": ""
+    },
+    {
+      "id": "q03",
+      "type": "lookup",
+      "question": "Which field is required in Authorize.req?",
+      "ground_truth": "idTag",
+      "source": "6.1",
+      "notes": ""
+    },
+    {
+      "id": "q04",
+      "type": "lookup",
+      "question": "Which fields are required in StartTransaction.req?",
+      "ground_truth": "connectorId, idTag, meterStart, timestamp",
+      "source": "6.45",
+      "notes": ""
+    },
+    {
+      "id": "q05",
+      "type": "lookup",
+      "question": "Which fields are required in StopTransaction.req?",
+      "ground_truth": "meterStop, timestamp, transactionId",
+      "source": "6.49",
+      "notes": ""
+    },
+    {
+      "id": "q06",
+      "type": "lookup",
+      "question": "Which fields are required in MeterValues.req?",
+      "ground_truth": "connectorId, meterValue",
+      "source": "6.31",
+      "notes": ""
+    },
+    {
+      "id": "q07",
+      "type": "lookup",
+      "question": "What ChargePointStatus values can be reported for the Charge Point main controller (connectorId = 0)?",
+      "ground_truth": "Available, Unavailable, Faulted",
+      "source": "7.7",
+      "notes": ""
+    },
+    {
+      "id": "q08",
+      "type": "lookup",
+      "question": "What are the allowed values of Reason in StopTransaction.req?",
+      "ground_truth": "DeAuthorized, EmergencyStop, EVDisconnected, HardReset, Local, Other, PowerLoss, Reboot, Remote, SoftReset, UnlockCommand",
+      "source": "7.36",
+      "notes": ""
+    },
+    {
+      "id": "q09",
+      "type": "lookup",
+      "question": "What does connectorId 0 designate in MeterValues.req, despite the stated connectorId > 0 constraint?",
+      "ground_truth": "The main powermeter; the same field definition also states connectorId > 0",
+      "source": "6.31",
+      "notes": ""
+    },
+    {
+      "id": "q10",
+      "type": "lookup",
+      "question": "What does the HeartbeatInterval configuration key control?",
+      "ground_truth": "The interval of inactivity after which the Charge Point should send a Heartbeat.req",
+      "source": "9.1.10",
+      "notes": ""
+    },
+    {
+      "id": "q11",
+      "type": "lookup",
+      "question": "Which field is required in RemoteStopTransaction.req?",
+      "ground_truth": "transactionId",
+      "source": "6.35, p.69",
+      "notes": ""
+    },
+    {
+      "id": "q12",
+      "type": "lookup",
+      "question": "What are the allowed RegistrationStatus values returned in BootNotification.conf?",
+      "ground_truth": "Accepted, Pending, Rejected",
+      "source": "7.38, p.92",
+      "notes": ""
+    },
+    {
+      "id": "q14",
+      "type": "multipart",
+      "question": "What fields are exchanged in the BootNotification request and response?",
+      "ground_truth": "BootNotification.req requires chargePointModel and chargePointVendor; BootNotification.conf contains currentTime, interval and status.",
+      "source": "6.3, p.62; 6.4, p.62",
+      "notes": ""
+    },
+    {
+      "id": "q19",
+      "type": "cross_section",
+      "question": "What fields does StartTransaction.req contain, and when must the Charge Point send it?",
+      "ground_truth": "It contains required connectorId, idTag, meterStart and timestamp plus optional reservationId; the Charge Point SHALL send it to inform the Central System that a transaction has started.",
+      "source": "6.45, p.72; 4.8, p.39",
+      "notes": ""
+    },
+    {
+      "id": "q20",
+      "type": "cross_section",
+      "question": "What fields does StopTransaction.req contain, and when must the Charge Point send it?",
+      "ground_truth": "It contains required meterStop, timestamp and transactionId plus optional idTag, reason and transactionData; the Charge Point SHALL send it when a transaction is stopped.",
+      "source": "6.49, p.74; 4.10, p.45",
+      "notes": ""
+    },
+    {
+      "id": "q21",
+      "type": "cross_section",
+      "question": "How is the Reason field of StopTransaction.req defined, and what should it be assumed to mean when a transaction ends normally?",
+      "ground_truth": "Reason is optional and MAY only be omitted when it is Local; for normal termination, an omitted Reason SHOULD be assumed to be Local.",
+      "source": "6.49, p.74; 4.10, p.45",
+      "notes": ""
+    },
+    {
+      "id": "q22",
+      "type": "cross_section",
+      "question": "What does MeterValues.req carry, and how does the specification define the periodic sampling that produces it?",
+      "ground_truth": "meterValue carries the sampled meter values and connectorId identifies the connector; MeterValueSampleInterval defines the sampling interval and MeterValuesSampledData defines which measurands are included.",
+      "source": "6.31, p.69; 3.16.1, p.31; 9.1.17-9.1.19, pp.102-103",
+      "notes": ""
+    },
+    {
+      "id": "q23",
+      "type": "cross_section",
+      "question": "What does connectorId 0 mean in StatusNotification.req, and which ChargePointStatus values may the main controller report?",
+      "ground_truth": "connectorId 0 identifies the Charge Point main controller, which may report only Available, Unavailable or Faulted.",
+      "source": "6.47, p.73; 7.7, p.83",
+      "notes": ""
+    },
+    {
+      "id": "q24",
+      "type": "unanswerable",
+      "question": "What exact timeout, in seconds, does OCPP 1.6 mandate for the Central System to respond to Authorize.req?",
+      "ground_truth": "Not specified in OCPP 1.6 Edition 2.",
+      "source": "4.1, p.33",
+      "notes": ""
+    },
+    {
+      "id": "q25",
+      "type": "unanswerable",
+      "question": "What exact timeout, in seconds, does OCPP 1.6 mandate for the Central System to respond to BootNotification.req?",
+      "ground_truth": "Not specified in OCPP 1.6 Edition 2.",
+      "source": "4.2, p.34",
+      "notes": ""
+    },
+    {
+      "id": "q27",
+      "type": "unanswerable",
+      "question": "What is the maximum number of simultaneous transactions that OCPP 1.6 permits a Charge Point to have?",
+      "ground_truth": "No numeric maximum is specified in OCPP 1.6 Edition 2.",
+      "source": "7.2, p.76",
+      "notes": ""
+    },
+    {
+      "id": "q13",
+      "type": "cross_section",
+      "question": "What does RemoteStartTransaction.req contain, and what does the response status mean?",
+      "ground_truth": "The request requires idTag and may contain connectorId and chargingProfile; the response status is Accepted or Rejected, indicating whether the command will be executed.",
+      "source": "6.33, p.69; 7.39, p.91",
+      "notes": ""
+    },
+    {
+      "id": "q15",
+      "type": "multipart",
+      "question": "What fields does ReserveNow.req contain, and what are their cardinalities?",
+      "ground_truth": "connectorId (required), expiryDate (required), idTag (required), parentIdTag (optional), reservationId (required).",
+      "source": "6.37, p.68",
+      "notes": ""
+    },
+    {
+      "id": "q16",
+      "type": "multipart",
+      "question": "What does Reset.req contain, and what does its required type field specify?",
+      "ground_truth": "Reset.req contains the required type field, which specifies whether the Charge Point should perform a Hard or Soft reset.",
+      "source": "6.39, p.69",
+      "notes": ""
+    },
+    {
+      "id": "q17",
+      "type": "multipart",
+      "question": "What fields does StopTransaction.req contain, and what are their cardinalities?",
+      "ground_truth": "idTag (optional), meterStop (required), timestamp (required), transactionId (required), reason (optional), transactionData (optional).",
+      "source": "6.49, p.72",
+      "notes": ""
+    },
+    {
+      "id": "q18",
+      "type": "multipart",
+      "question": "What fields does StatusNotification.req contain, and what are their cardinalities?",
+      "ground_truth": "connectorId (required), errorCode (required), info (optional), status (required), timestamp (optional), vendorId (optional), vendorErrorCode (optional).",
+      "source": "6.47, p.71-72",
+      "notes": ""
+    },
+    {
+      "id": "q26",
+      "type": "unanswerable",
+      "question": "If the Central System never responds at all to a transaction-related message, what exact behavior must the Charge Point follow?",
+      "ground_truth": "The document does not specify the required behavior; it states that what constitutes a failure to respond is defined in the OCPP JSON Specification and OCPP SOAP Specification.",
+      "source": "3.7.1, p.17",
+      "notes": "The corpus also contains the OCPP-J spec, so retrieval may surface an answer from there."
+    },
+    {
+      "id": "q28",
+      "type": "unanswerable",
+      "question": "If the Central System never responds to a non-transaction-related message, what exact timeout and retry behavior does OCPP 1.6 mandate?",
+      "ground_truth": "No exact timeout and retry behavior is specified in OCPP 1.6 Edition 2.",
+      "source": "4.1-4.10, pp.33-47",
+      "notes": ""
+    }
+  ]
 }
