@@ -16,6 +16,8 @@ EVAL_SET_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "eval_s
 with open(EVAL_SET_PATH, encoding="utf-8") as f:
     TEST_QUESTIONS = json.load(f)["questions"]
 
+CORPUS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "corpus")
+
 def run_experiment(strategy="fixed", chunk_size=512, chunk_overlap=64):
     """
     Run a complete evaluation experiment with specific parameters.
@@ -26,7 +28,9 @@ def run_experiment(strategy="fixed", chunk_size=512, chunk_overlap=64):
     print(f"\nRunning experiment: strategy={strategy}, chunk_size={chunk_size}")
     
     # Load and chunk documents
-    docs = load_documents('data/raw')
+    docs = load_documents(CORPUS_DIR)
+    # data/corpus also holds NOTICE.md; only the PDFs are the corpus
+    docs = [d for d in docs if d.metadata["source_file"].endswith(".pdf")]
     if strategy == "fixed":
         chunks = get_chunks(docs, strategy=strategy, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     else:
