@@ -38,7 +38,8 @@ def run_experiment(strategy="fixed", chunk_size=512, chunk_overlap=64):
         chunks = get_chunks(docs, strategy=strategy)
     
     # Build vector store
-    vectorstore = build_vectorstore(chunks, save_path=f"vectorstore_{strategy}_{chunk_size}/")
+    store_name = f"vectorstore_{strategy}_{chunk_size}" if strategy == "fixed" else f"vectorstore_{strategy}"
+    vectorstore = build_vectorstore(chunks, save_path=f"{store_name}/")
     
     # Collect results for all test questions
     questions = []
@@ -67,7 +68,7 @@ def run_experiment(strategy="fixed", chunk_size=512, chunk_overlap=64):
     return {
         "config": {
             "strategy": strategy,
-            "chunk_size": chunk_size,
+            "chunk_size": chunk_size if strategy == "fixed" else None,
             "chunk_overlap": chunk_overlap,
             "num_chunks": len(chunks)
         },
