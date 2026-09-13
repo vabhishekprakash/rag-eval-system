@@ -12,17 +12,9 @@ from retrieval.generator import generate_answer
 from evaluation.metrics import evaluate_rag_system, format_results
 
 # Test questions with ground truth answers
-TEST_QUESTIONS = [
-    {
-        "question": "What is the student name?",
-        "ground_truth": "Vallamalla Abhishek Prakash"
-    },
-    {
-        "question": "What is the examination fee amount?",
-        "ground_truth": "Fee amount mentioned in the receipt"
-    },
-    # Add more test questions based on your documents
-]
+EVAL_SET_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "eval_set.json")
+with open(EVAL_SET_PATH, encoding="utf-8") as f:
+    TEST_QUESTIONS = json.load(f)["questions"]
 
 def run_experiment(strategy="fixed", chunk_size=512, chunk_overlap=64):
     """
