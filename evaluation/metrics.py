@@ -1,4 +1,5 @@
 from ragas import evaluate
+from ragas.run_config import RunConfig
 from ragas.metrics import faithfulness, answer_relevancy
 from ragas.llms import LangchainLLMWrapper
 from ragas.embeddings import LangchainEmbeddingsWrapper
@@ -30,7 +31,11 @@ def evaluate_rag_system(questions, answers, contexts, ground_truths):
         dataset,
         metrics=[faithfulness, answer_relevancy],
         llm=local_llm,
-        embeddings=local_embeddings
+        embeddings=local_embeddings,
+        # Ollama serves one request at a time. With the default 16 workers the
+        # queued judge calls exceed the default 180 s timeout and every score is
+        # NaN, so score one job at a time and give each job room to finish.
+        run_config=RunConfig(timeout=1800, max_workers=1)
     )
 
     return result
