@@ -10,6 +10,7 @@ from ingestion.embedder import build_vectorstore, load_vectorstore
 from retrieval.retriever import retrieve_context, load_retriever
 from retrieval.generator import generate_answer
 from evaluation.metrics import evaluate_rag_system, format_results
+from langchain_community.llms import Ollama
 
 # Test questions with ground truth answers
 EVAL_SET_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "eval_set.json")
@@ -73,6 +74,42 @@ def run_experiment(strategy="fixed", chunk_size=512, chunk_overlap=64):
         "metrics": formatted
     }
 
+def run_baseline(model_name="mistral"):
+    """
+    Answer every question from the model alone: no retrieval, no context, and
+    no instruction to stay within a context. Same model and temperature as
+    generate_answer, so the chunking strategies have a floor to beat.
+    """
+    print("\nRunning baseline: no retrieval")
+
+    llm = Ollama(model=model_name, temperature=0.1)
+
+    questions = []
+    answers = []
+    ground_truths = []
+
+    for test in TEST_QUESTIONS:
+        query = test["question"]
+        questions.append(query)
+        answers.append(llm.invoke(query).strip())
+        ground_truths.append(test["ground_truth"])
+
+    # No retrieval means no context; faithfulness has nothing to check against
+    contexts = [[""] for _ in questions]
+
+    eval_result = evaluate_rag_system(questions, answers, contexts, ground_truths)
+    formatted = format_results(eval_result)
+
+    return {
+        "config": {
+            "strategy": "none",
+            "chunk_size": None,
+            "chunk_overlap": None,
+            "num_chunks": 0
+        },
+        "metrics": formatted
+    }
+
 def compare_strategies():
     """
     Run ablation study comparing different chunking strategies.
@@ -88,7 +125,8 @@ def compare_strategies():
     for exp in experiments:
         result = run_experiment(**exp)
         results.append(result)
-    
+    results.append(run_baseline())
+
     # Save results
     with open("evaluation_results.json", "w") as f:
         json.dump(results, f, indent=2)
