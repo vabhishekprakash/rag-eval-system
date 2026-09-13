@@ -3,4 +3,3 @@ vectorstore*/
 .venv/
 __pycache__/
 *.pyc
-evaluation_results.json
