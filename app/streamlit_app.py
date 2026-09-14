@@ -382,7 +382,7 @@ with st.sidebar:
         'Vallamalla Abhishek Prakash<br>'
         '<a href="https://github.com/vabhishekprakash" style="color:#666;text-decoration:none;">github</a>'
         ' <span style="color:#222">·</span> '
-        '<a href="https://linkedin.com/in/vabhishekprakash" style="color:#666;text-decoration:none;">linkedin</a>'
+        '<a href="https://linkedin.com/in/vallamalla-abhishek-prakash" style="color:#666;text-decoration:none;">linkedin</a>'
         '</div>',
         unsafe_allow_html=True
     )
