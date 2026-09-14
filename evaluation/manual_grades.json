@@ -1,0 +1,338 @@
+{
+  "what": "Manual grades of 46 answers from evaluation/per_question_results.json against the ground-truth answers in evaluation/eval_set.json: the 23 answerable questions for the no-retrieval baseline and for fixed 1024.",
+  "grader": "Vallamalla Abhishek Prakash (repository author)",
+  "graded_on": "2026-09-14",
+  "method": "Graded from a sheet showing only question, reference answer and model answer, in random order, with configuration, question id, retrieved chunks and scores removed. Same rubric as the panels in evaluation/answer_grades.json (correct, partial, incorrect, declined).",
+  "blinding": "Partial. The grader had read the panel totals beforehand, and an answer's wording can reveal whether retrieval was used.",
+  "summary": {
+    "no_retrieval": {
+      "incorrect": 22,
+      "partial": 1
+    },
+    "fixed_1024": {
+      "correct": 11,
+      "declined": 1,
+      "incorrect": 3,
+      "partial": 8
+    },
+    "correct_no_retrieval": 0,
+    "correct_fixed_1024": 11,
+    "agreement_with_panel_a": 41,
+    "agreement_with_panel_b": 42,
+    "differences_from_a_panel": [
+      {
+        "id": "q07",
+        "configuration": "fixed_1024",
+        "manual": "incorrect",
+        "panel_a": "declined",
+        "panel_b": "declined"
+      },
+      {
+        "id": "q10",
+        "configuration": "fixed_1024",
+        "manual": "correct",
+        "panel_a": "partial",
+        "panel_b": "correct"
+      },
+      {
+        "id": "q19",
+        "configuration": "fixed_1024",
+        "manual": "partial",
+        "panel_a": "correct",
+        "panel_b": "correct"
+      },
+      {
+        "id": "q23",
+        "configuration": "no_retrieval",
+        "manual": "partial",
+        "panel_a": "incorrect",
+        "panel_b": "incorrect"
+      },
+      {
+        "id": "q13",
+        "configuration": "fixed_1024",
+        "manual": "correct",
+        "panel_a": "partial",
+        "panel_b": "partial"
+      }
+    ]
+  },
+  "grades": [
+    {
+      "id": "q01",
+      "configuration": "fixed_1024",
+      "grade": "correct",
+      "blind_sheet_item": 9
+    },
+    {
+      "id": "q01",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 29
+    },
+    {
+      "id": "q02",
+      "configuration": "fixed_1024",
+      "grade": "incorrect",
+      "blind_sheet_item": 17
+    },
+    {
+      "id": "q02",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 12
+    },
+    {
+      "id": "q03",
+      "configuration": "fixed_1024",
+      "grade": "correct",
+      "blind_sheet_item": 22
+    },
+    {
+      "id": "q03",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 31
+    },
+    {
+      "id": "q04",
+      "configuration": "fixed_1024",
+      "grade": "correct",
+      "blind_sheet_item": 3
+    },
+    {
+      "id": "q04",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 15
+    },
+    {
+      "id": "q05",
+      "configuration": "fixed_1024",
+      "grade": "correct",
+      "blind_sheet_item": 18
+    },
+    {
+      "id": "q05",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 41
+    },
+    {
+      "id": "q06",
+      "configuration": "fixed_1024",
+      "grade": "correct",
+      "blind_sheet_item": 24
+    },
+    {
+      "id": "q06",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 4
+    },
+    {
+      "id": "q07",
+      "configuration": "fixed_1024",
+      "grade": "incorrect",
+      "blind_sheet_item": 23
+    },
+    {
+      "id": "q07",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 38
+    },
+    {
+      "id": "q08",
+      "configuration": "fixed_1024",
+      "grade": "partial",
+      "blind_sheet_item": 16
+    },
+    {
+      "id": "q08",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 30
+    },
+    {
+      "id": "q09",
+      "configuration": "fixed_1024",
+      "grade": "correct",
+      "blind_sheet_item": 13
+    },
+    {
+      "id": "q09",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 8
+    },
+    {
+      "id": "q10",
+      "configuration": "fixed_1024",
+      "grade": "correct",
+      "blind_sheet_item": 42
+    },
+    {
+      "id": "q10",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 11
+    },
+    {
+      "id": "q11",
+      "configuration": "fixed_1024",
+      "grade": "correct",
+      "blind_sheet_item": 1
+    },
+    {
+      "id": "q11",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 44
+    },
+    {
+      "id": "q12",
+      "configuration": "fixed_1024",
+      "grade": "partial",
+      "blind_sheet_item": 27
+    },
+    {
+      "id": "q12",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 43
+    },
+    {
+      "id": "q14",
+      "configuration": "fixed_1024",
+      "grade": "correct",
+      "blind_sheet_item": 33
+    },
+    {
+      "id": "q14",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 5
+    },
+    {
+      "id": "q19",
+      "configuration": "fixed_1024",
+      "grade": "partial",
+      "blind_sheet_item": 39
+    },
+    {
+      "id": "q19",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 32
+    },
+    {
+      "id": "q20",
+      "configuration": "fixed_1024",
+      "grade": "partial",
+      "blind_sheet_item": 7
+    },
+    {
+      "id": "q20",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 35
+    },
+    {
+      "id": "q21",
+      "configuration": "fixed_1024",
+      "grade": "partial",
+      "blind_sheet_item": 14
+    },
+    {
+      "id": "q21",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 10
+    },
+    {
+      "id": "q22",
+      "configuration": "fixed_1024",
+      "grade": "partial",
+      "blind_sheet_item": 34
+    },
+    {
+      "id": "q22",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 6
+    },
+    {
+      "id": "q23",
+      "configuration": "fixed_1024",
+      "grade": "partial",
+      "blind_sheet_item": 20
+    },
+    {
+      "id": "q23",
+      "configuration": "no_retrieval",
+      "grade": "partial",
+      "blind_sheet_item": 37
+    },
+    {
+      "id": "q13",
+      "configuration": "fixed_1024",
+      "grade": "correct",
+      "blind_sheet_item": 45
+    },
+    {
+      "id": "q13",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 21
+    },
+    {
+      "id": "q15",
+      "configuration": "fixed_1024",
+      "grade": "partial",
+      "blind_sheet_item": 26
+    },
+    {
+      "id": "q15",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 40
+    },
+    {
+      "id": "q16",
+      "configuration": "fixed_1024",
+      "grade": "correct",
+      "blind_sheet_item": 28
+    },
+    {
+      "id": "q16",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 46
+    },
+    {
+      "id": "q17",
+      "configuration": "fixed_1024",
+      "grade": "incorrect",
+      "blind_sheet_item": 19
+    },
+    {
+      "id": "q17",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 2
+    },
+    {
+      "id": "q18",
+      "configuration": "fixed_1024",
+      "grade": "declined",
+      "blind_sheet_item": 25
+    },
+    {
+      "id": "q18",
+      "configuration": "no_retrieval",
+      "grade": "incorrect",
+      "blind_sheet_item": 36
+    }
+  ]
+}

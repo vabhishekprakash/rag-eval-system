@@ -42,6 +42,8 @@ The recorded semantic row in both files carries `chunk_overlap: 64`. That is a p
 
 Both RAGAs metrics rank the no-retrieval baseline above every retrieval configuration. Because neither metric compares answers to the ground truth, all 140 answers (28 questions × 5 configurations) were also graded against the reference answers by two LLM panels. Both panels were the same model, Claude Opus 5 (`claude-opus-5`), run twice with the same rubric and a different instruction each, which is weaker evidence than two different models. The panels ran without seeing each other's grades, but they were not blind to configuration: each grader saw all five answers to a question labelled by configuration, with the retrieved chunks and the RAGAs scores. They agreed on 138 of 140 grades. The no-retrieval baseline was graded correct on 0 of 23 answerable questions; fixed 1024 was graded correct on 10 or 11 of 23, the two panels differing on one item (q10). One panel's instruction named failure patterns already seen in baseline answers, such as descriptions of other protocols; the other panel's did not, and both graded the baseline 0 of 23. These grades come from a model, not people, and are reported for the direction of the difference rather than as exact accuracy. The rubric, both instructions and every grade are in `evaluation/answer_grades.json`.
 
+I also graded 46 answers myself: the 23 answerable questions for the no-retrieval baseline and for fixed 1024. I graded the baseline correct on 0 of 23 and fixed 1024 on 11 of 23, agreeing with the two model panels on 41 and 42 of 46. Answer relevancy ranks that same baseline highest of all five configurations. The blinding was partial: I had read the panel totals beforehand, and an answer's wording can reveal whether retrieval was used. Where I differed from a panel, it was on the boundary between two grades: three on partial against correct, one on incorrect against declined, and one where I gave a baseline answer partial credit that both panels called incorrect. None of my differences graded a baseline answer correct, so the 0 of 23 result is unaffected. My grades are in `evaluation/manual_grades.json`.
+
 ### How to read these numbers
 
 - **The baseline's high answer relevancy does not mean retrieval hurts.** Answer relevancy scores whether an answer addresses the question, not whether it is correct, and an answer can address the question and still be wrong. Asked which fields BootNotification.req requires (q02), the baseline describes the ACPI firmware specification; with retrieval, fixed 512 names `idTagInfo` and fixed 1024 names BootNotification.conf fields, yet they score 0.693 and 0.729.
@@ -115,7 +117,8 @@ rag-eval-system/
 │   ├── run_eval.py         # runs the four chunking configurations and the no-retrieval baseline
 │   ├── eval_set.json       # 28 questions with ground-truth answers
 │   ├── per_question_results.json  # answers, retrieved chunks and scores from the published run
-│   └── answer_grades.json  # LLM-panel correctness grades of those answers
+│   ├── answer_grades.json  # LLM-panel correctness grades of those answers
+│   └── manual_grades.json  # the author's own grades of 46 of those answers
 ├── data/corpus/            # OCPP 1.6 specification PDFs used by the evaluation
 ├── docs/demo.gif           # app demo shown above
 ├── evaluation_results.json # summary scores from the published run
