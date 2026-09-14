@@ -3,12 +3,18 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import html
+import json
+import math
 import streamlit as st
 from ingestion.loader import load_documents
 from ingestion.chunker import get_chunks
 from ingestion.embedder import build_vectorstore, load_vectorstore
 from retrieval.retriever import retrieve_context
 from retrieval.generator import generate_answer
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CORPUS_DIR = os.path.join(ROOT_DIR, "data", "corpus")
+RESULTS_PATH = os.path.join(ROOT_DIR, "evaluation_results.json")
 
 st.set_page_config(
     page_title="RAG.eval",
@@ -341,14 +347,34 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown('<div class="sidebar-section-label">Evaluation Results</div>', unsafe_allow_html=True)
-    st.markdown("""
-<table class="eval-table">
-<tr><th>Strategy</th><th>Faith.</th><th>Relev.</th></tr>
-<tr><td>Fixed 256</td><td>1.000</td><td>0.897</td></tr>
-<tr><td>Fixed 1024</td><td>1.000</td><td>0.976</td></tr>
-<tr><td>Semantic</td><td>1.000</td><td>0.976</td></tr>
-</table>
-""", unsafe_allow_html=True)
+    # Scores come from the committed evaluation_results.json, not hardcoded values
+    def fmt_score(value):
+        if value is None or (isinstance(value, float) and math.isnan(value)):
+            return "—"
+        return f"{value:.3f}"
+
+    if os.path.exists(RESULTS_PATH):
+        with open(RESULTS_PATH, encoding="utf-8") as f:
+            eval_results = json.load(f)
+        rows_html = ""
+        for r in eval_results:
+            cfg, metrics = r["config"], r["metrics"]
+            if cfg["strategy"] == "fixed":
+                label = f"Fixed {cfg['chunk_size']}"
+            elif cfg["strategy"] == "none":
+                label = "No retrieval"
+            else:
+                label = cfg["strategy"].capitalize()
+            # Faithfulness has no context to check against without retrieval
+            faith = "—" if cfg["strategy"] == "none" else fmt_score(metrics.get("faithfulness"))
+            rows_html += f"<tr><td>{html.escape(label)}</td><td>{faith}</td><td>{fmt_score(metrics.get('answer_relevancy'))}</td></tr>"
+        st.markdown(
+            '<table class="eval-table"><tr><th>Strategy</th><th>Faith.</th><th>Relev.</th></tr>'
+            f"{rows_html}</table>",
+            unsafe_allow_html=True
+        )
+    else:
+        st.caption("Run evaluation/run_eval.py to generate evaluation_results.json.")
 
     st.markdown("---")
     st.markdown(
@@ -376,7 +402,9 @@ def get_vectorstore(strategy: str, size: int):
     path = f"vectorstore_{strategy}_{size}/" if strategy == "fixed" else f"vectorstore_{strategy}/"
     if os.path.exists(path):
         return load_vectorstore(save_path=path)
-    docs = load_documents("data/raw")
+    docs = load_documents(CORPUS_DIR)
+    # data/corpus also holds NOTICE.md; only the PDFs are the corpus
+    docs = [d for d in docs if d.metadata["source_file"].endswith(".pdf")]
     # Bug fix: semantic chunking doesn't accept chunk_size
     chunks = get_chunks(docs, strategy=strategy, chunk_size=size) if strategy == "fixed" \
              else get_chunks(docs, strategy=strategy)
