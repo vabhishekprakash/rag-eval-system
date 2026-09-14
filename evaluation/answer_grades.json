@@ -1,0 +1,2294 @@
+{
+  "what": "Grades of every answer in evaluation/per_question_results.json against the ground-truth answers in evaluation/eval_set.json. RAGAs faithfulness and answer relevancy do not use the ground truth, so these grades were added to check correctness.",
+  "graded_on": "2026-09-14",
+  "grader": {
+    "model": "claude-opus-5",
+    "panels": "Two panels, both the same model (claude-opus-5) run twice with the same rubric and a different instruction per panel. Each panel was 7 separate agents grading 4 questions each (all 5 configurations per question).",
+    "panel_a_instruction": "Your lens: strict specification accuracy. Check each listed field name, enum value and cardinality against ground_truth one by one.",
+    "panel_b_instruction": "Your lens: fabrication hunting. Assume answers may sound confident while being invented; look for claims about other protocols (ACPI, OAuth, PXE, OCPP 2.0 terminology), invented numbers, and required/optional mix-ups. Do not give credit for fluent but unsupported text.",
+    "independence": "The panels ran in parallel as separate agents and did not see each other's grades.",
+    "not_blind_to": "Configuration. Each grader saw all five answers to a question side by side, labelled by configuration name, together with the retrieved chunks and the RAGAs scores (the prompt said to ignore the scores).",
+    "rubric": "Grades (pick exactly one per answer):\n- Answerable questions (type is lookup, multipart or cross_section):\n  correct   = states every element of ground_truth and asserts nothing that contradicts it or the spec.\n  partial   = some ground_truth elements present but others missing, OR all present plus a material wrong claim\n              (e.g. calling an optional field required, extra invented enum values).\n  incorrect = ground_truth elements absent or contradicted, including answers about a different protocol or domain.\n  declined  = says the context/it cannot answer, without asserting a wrong answer.\n  (never use hallucinated for answerable questions; use incorrect)\n- Unanswerable questions (type is unanswerable):\n  correct      = says the specification does not specify it (or equivalent), without inventing a value/behaviour.\n  partial      = says it is not specified but ALSO offers a specific invented value/behaviour as if typical or required.\n  hallucinated = asserts a specific timeout, number or mandated behaviour as if OCPP 1.6 specifies it.\n  declined     = only says the given context lacks the information, without saying the spec does not define it.\nretrieval_contains_answer (judge ONLY the retrieved_contexts, not the answer):\n  yes/partial/no for fixed_256, fixed_512, fixed_1024, semantic on answerable questions;\n  na for no_retrieval, and na for every unanswerable question.\nrationale: one short sentence quoting or naming the decisive evidence.\nGrade against ground_truth as written. If retrieved_contexts clearly contradict ground_truth, still grade against\nground_truth but add an entry to ground_truth_concerns quoting the contradicting context."
+  },
+  "agreement": {
+    "same_grade": 138,
+    "of": 140
+  },
+  "tally_panel_a": {
+    "fixed_256": {
+      "answerable_23": {
+        "correct": 3,
+        "declined": 4,
+        "incorrect": 8,
+        "partial": 8
+      },
+      "labelled_unanswerable_5": {
+        "correct": 1,
+        "declined": 3,
+        "hallucinated": 1
+      }
+    },
+    "fixed_512": {
+      "answerable_23": {
+        "correct": 3,
+        "incorrect": 7,
+        "partial": 13
+      },
+      "labelled_unanswerable_5": {
+        "declined": 4,
+        "hallucinated": 1
+      }
+    },
+    "fixed_1024": {
+      "answerable_23": {
+        "correct": 10,
+        "declined": 2,
+        "incorrect": 2,
+        "partial": 9
+      },
+      "labelled_unanswerable_5": {
+        "declined": 4,
+        "hallucinated": 1
+      }
+    },
+    "semantic": {
+      "answerable_23": {
+        "correct": 4,
+        "declined": 4,
+        "incorrect": 5,
+        "partial": 10
+      },
+      "labelled_unanswerable_5": {
+        "declined": 4,
+        "hallucinated": 1
+      }
+    },
+    "no_retrieval": {
+      "answerable_23": {
+        "incorrect": 23
+      },
+      "labelled_unanswerable_5": {
+        "correct": 1,
+        "hallucinated": 4
+      }
+    }
+  },
+  "tally_panel_b": {
+    "fixed_256": {
+      "answerable_23": {
+        "correct": 3,
+        "declined": 4,
+        "incorrect": 8,
+        "partial": 8
+      },
+      "labelled_unanswerable_5": {
+        "correct": 1,
+        "declined": 3,
+        "hallucinated": 1
+      }
+    },
+    "fixed_512": {
+      "answerable_23": {
+        "correct": 3,
+        "incorrect": 7,
+        "partial": 13
+      },
+      "labelled_unanswerable_5": {
+        "declined": 4,
+        "hallucinated": 1
+      }
+    },
+    "fixed_1024": {
+      "answerable_23": {
+        "correct": 11,
+        "declined": 2,
+        "incorrect": 2,
+        "partial": 8
+      },
+      "labelled_unanswerable_5": {
+        "declined": 4,
+        "hallucinated": 1
+      }
+    },
+    "semantic": {
+      "answerable_23": {
+        "correct": 4,
+        "declined": 4,
+        "incorrect": 6,
+        "partial": 9
+      },
+      "labelled_unanswerable_5": {
+        "declined": 4,
+        "hallucinated": 1
+      }
+    },
+    "no_retrieval": {
+      "answerable_23": {
+        "incorrect": 23
+      },
+      "labelled_unanswerable_5": {
+        "correct": 1,
+        "hallucinated": 4
+      }
+    }
+  },
+  "ground_truth_concerns_raised_by_graders": [
+    {
+      "panel": "A",
+      "qid": "q05",
+      "concern": "This does not change the ground truth, but the fixed_512 context has a spec inconsistency. The sequence diagram writes 'StopTransaction.req(meterStop, timestamp, transactionId, reason, [idTag], [transactionData])' with reason unbracketed, which suggests it is mandatory. The field table in the fixed_1024 context says 'reason Reason 0..1 Optional'. The ground truth (meterStop, timestamp, transactionId) follows the authoritative table."
+    },
+    {
+      "panel": "A",
+      "qid": "q09",
+      "concern": "The question and ground truth call \"connectorId > 0\" the stated constraint. The 6.31 context actually has a constraint column reading \"connectorId >= 0\"; \">0\" appears only in the description (\"This contains a number (>0) designating a connector of the Charge Point.\"). The second part of the ground truth matches the description, not the constraint, and it restates the question's premise rather than adding anything to the answer. Answers were graded mainly on naming the main powermeter."
+    },
+    {
+      "panel": "A",
+      "qid": "q20",
+      "concern": "The retrieved Figure 21 and Figure 8 sequence diagrams read 'StopTransaction.req(meterStop, timestamp, transactionId, reason, [idTag], [transactionData])' and show reason unbracketed, which suggests it is required. The ground truth follows the 6.49 table ('reason Reason 0..1 Optional'), which is the authoritative field definition, so the spec contradicts itself here. Models reading only the diagram can reasonably treat reason as required."
+    },
+    {
+      "panel": "A",
+      "qid": "q21",
+      "concern": "The ground-truth phrase 'an omitted Reason SHOULD be assumed to be Local' comes from section 4.10, which none of the configs retrieved; the retrieved text only has the 6.49 wording 'MAY only be omitted when the Reason is \"Local\"'. Also, 7.36 calls both Local and Remote a 'regular termination'. So 'normal termination' in the question is ambiguous and could wrongly suggest remote stops default to Local."
+    },
+    {
+      "panel": "A",
+      "qid": "q17",
+      "concern": "The retrieved section 4.10 sequence diagram shows 'StopTransaction.req(meterStop, timestamp, transactionId, reason, [idTag], [transactionData])' without brackets on reason, which suggests reason is required. The ground truth follows the 6.49 table, where reason is 0..1. This inconsistency inside the spec probably misled several answers. The ground truth's 'transactionData (optional)' is also less precise than the table's 0..* ('a container for any number of MeterValues')."
+    },
+    {
+      "panel": "A",
+      "qid": "q28",
+      "concern": "spec_source '4.1-4.10, pp.33-47' does not point to the relevant text. fixed_256 retrieved an OCPP-J passage: 'an implementation-dependent timeout interval has elapsed since the message was sent. Implementations are free to choose this timeout interval'. That passage agrees with the ground truth, but it shows the corpus holds transport-level timeout guidance, so a correct answer could cite it instead of simply saying 'not specified'."
+    },
+    {
+      "panel": "B",
+      "qid": "q05",
+      "concern": "Not a real error in the ground truth, but the spec contradicts itself here and it misleads models. The fixed_512 and fixed_1024 contexts quote the Figure 21 sequence diagram 'StopTransaction.req(meterStop, timestamp, transactionId, reason, [idTag], [transactionData])', where reason is not bracketed and so looks required. The 6.49 field table (also in the fixed_1024 context) says 'reason Reason 0..1 Optional'. The ground truth follows the table and is correct; the diagram probably explains why fixed_512 called reason required."
+    },
+    {
+      "panel": "B",
+      "qid": "q09",
+      "concern": "The question says \"despite the stated connectorId > 0 constraint\", but in every retrieved 6.31 chunk the constraint column reads \"connectorId >= 0\". Only the description says \"a number (>0) designating a connector\". The ground truth phrase \"the same field definition also states connectorId > 0\" holds only for the description text, so the premise about the constraint is imprecise."
+    },
+    {
+      "panel": "B",
+      "qid": "q20",
+      "concern": "The retrieved Figure 21 diagram, 'StopTransaction.req(meterStop, timestamp, transactionId, reason, [idTag], [transactionData])', shows reason without brackets, as if required. The 6.49 table says 'reason Reason 0..1 Optional'. The ground truth (reason optional) follows the table, so answers that rely on the diagram can call reason required. This is an inconsistency inside the spec, not an error in the ground truth."
+    },
+    {
+      "panel": "B",
+      "qid": "q21",
+      "concern": "The same Figure 21 diagram inconsistency applies here: reason appears unbracketed ('transactionId, reason, [idTag]') while table 6.49 marks it 0..1 Optional. Separately, none of the retrieval configs surfaced the 4.10 sentence saying an omitted Reason SHOULD be assumed Local, so that part of the ground truth could not be grounded in any retrieved context."
+    },
+    {
+      "panel": "B",
+      "qid": "q17",
+      "concern": "The ground truth marks reason optional, which matches the 6.49 field table (Reason 0..1). But the 4.10 sequence diagram in the retrieved context (fixed_512, semantic) reads 'StopTransaction.req(meterStop, timestamp, transactionId, reason, [idTag], [transactionData])', with reason unbracketed, which implies it is required. The spec contradicts itself here, and answers grounded only in the diagram will call reason required. The ground truth also says 'optional' for transactionData, whose actual cardinality is 0..*."
+    }
+  ],
+  "grades": [
+    {
+      "id": "q01",
+      "type": "lookup",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "partial",
+        "rationale": "The answer names StatusNotification.req sent to the Central System. The retrieved chunk that describes the purpose ('A Charge Point sends a notification to the Central System... status change or an error') does not name the message; the name only shows up in a separate chunk."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "partial",
+        "rationale": "The answer names StatusNotification.req going to the Central System. The context has the direction ('sends a notification to the Central System... status change or an error') but names StatusNotification.req only in a separate ordering-rule chunk."
+      }
+    },
+    {
+      "id": "q01",
+      "type": "lookup",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer names StatusNotification with the Central System as receiver, which matches the 4.9 chunk ('StatusNotification.req(connectorId, errorCode, status...)' plus the status change/error description); leaving off '.req' is only a naming style."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer names StatusNotification, received by the Central System. The retrieved section 4.9 shows 'StatusNotification.req(connectorId, errorCode, status...)' from Charge Point to Central System for a status change or error."
+      }
+    },
+    {
+      "id": "q01",
+      "type": "lookup",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer states StatusNotification.req, received by the Central System. The context says the Charge Point 'SHOULD send a StatusNotification.req PDU with its current status' and 'Upon receipt... the Central System SHALL respond'."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer states StatusNotification.req, received by the Central System. The context says the Charge Point sends StatusNotification.req for status or errors and 'Upon receipt... the Central System SHALL respond'."
+      }
+    },
+    {
+      "id": "q01",
+      "type": "lookup",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "The answer offers 'DiagnosticsStatusNotification or StatusNotification'. DiagnosticsStatusNotification only reports diagnostics upload status, so that is a material wrong claim. The context shows StatusNotification.req only in a TriggerMessage example, without its purpose."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "The answer wrongly offers DiagnosticsStatusNotification as an alternative, though that message only reports diagnostics upload status. The context shows StatusNotification.req going from CP to CS only in a TriggerMessage example, with no status-change/error statement."
+      }
+    },
+    {
+      "id": "q01",
+      "type": "lookup",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "The answer never names StatusNotification.req and says a CSMS/EMS/'Operator Side' receives the messages, not the Central System."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "The answer never names StatusNotification.req. It invents receivers (CSMS, which is OCPP 2.0 terminology, plus EMS and an 'Operator Side')."
+      }
+    },
+    {
+      "id": "q02",
+      "type": "lookup",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "no",
+        "rationale": "The answer says the context does not specify the required fields. The retrieved 6.3 chunk ends at the table header 'FIELD NAME FIELD TYPE CARD. DESCRIPTION' with no field rows."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "no",
+        "rationale": "The answer says the context does not specify the required fields and asserts none. The context holds only the 6.3 table header, with no chargePointModel or chargePointVendor rows."
+      }
+    },
+    {
+      "id": "q02",
+      "type": "lookup",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "The answer gives 'idTagInfo', which is an Authorize.conf field, and omits chargePointModel and chargePointVendor. The context only shows the optional chargeBoxSerialNumber row of 6.3."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "The answer claims BootNotification.req requires 'idTagInfo', which is actually the Authorize.conf field. The context lists only chargeBoxSerialNumber (Optional) for 6.3."
+      }
+    },
+    {
+      "id": "q02",
+      "type": "lookup",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "The answer lists chargeBoxSerialNumber, currentTime and status; the last two are BootNotification.conf fields. chargePointModel and chargePointVendor are absent from both the answer and the context."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "The answer lists chargeBoxSerialNumber, currentTime and status. The last two are BootNotification.conf fields, and it misses chargePointModel and chargePointVendor, which do not appear in the context."
+      }
+    },
+    {
+      "id": "q02",
+      "type": "lookup",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "The answer does not simply decline: it infers that BootNotification.req 'should contain this field currentTime', which is a .conf field. The context has only TOC entries and the .conf header."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "The answer hedges but infers that BootNotification.req 'should contain this field currentTime', a conf field. The contexts are only TOC lines and the conf header."
+      }
+    },
+    {
+      "id": "q02",
+      "type": "lookup",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "The answer describes an invented ACPI table (Signature, Length, OEMID...) instead of OCPP chargePointModel/chargePointVendor."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "The answer describes an invented ACPI table (Signature, OEMID, Fletcher16 checksum, etc.) instead of OCPP's chargePointModel and chargePointVendor."
+      }
+    },
+    {
+      "id": "q03",
+      "type": "lookup",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "no",
+        "rationale": "The answer says the context does not specify the required field. The retrieved 6.1 chunk stops at the table header before the 'idTag IdToken 1..1 Required' row."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "no",
+        "rationale": "The answer says it is 'not possible to determine which specific field is required'. The context has the 6.1 header without the idTag row."
+      }
+    },
+    {
+      "id": "q03",
+      "type": "lookup",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer says idTag is required, matching the context row 'idTag IdToken 1..1 Required. This contains the identifier that needs to be authorized.'"
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer states idTag is required, matching the context row 'idTag IdToken 1..1 Required'."
+      }
+    },
+    {
+      "id": "q03",
+      "type": "lookup",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer says idTag is required, and the context contains the 6.1 row 'idTag IdToken 1..1 Required'."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer states idTag is required. The context contains 'idTag IdToken 1..1 Required' and 'Authorize.req(idTag)'."
+      }
+    },
+    {
+      "id": "q03",
+      "type": "lookup",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer says idTag is required, and the second context contains 'idTag IdToken 1..1 Required'."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer states idTag is required, and the second context has 'idTag IdToken 1..1 Required'."
+      }
+    },
+    {
+      "id": "q03",
+      "type": "lookup",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "The answer describes OAuth2 authorization parameters (response_type, client_id...) and never mentions idTag."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "The answer reframes the question as OAuth2 and lists response_type, client_id, redirect_uri and so on, never idTag."
+      }
+    },
+    {
+      "id": "q04",
+      "type": "lookup",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "The answer lists only connectorId and timestamp and says it 'requires two fields', leaving out idTag and meterStart. The context shows connectorId without cardinality, and its timestamp row belongs to StopTransaction.req."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "The answer gives only connectorId and timestamp and misses idTag and meterStart. Its timestamp evidence is the StopTransaction row ('date and time on which the transaction is stopped'), and connectorId in the context is cut off before its cardinality."
+      }
+    },
+    {
+      "id": "q04",
+      "type": "lookup",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "The answer gets connectorId and idTag but wrongly calls reservationId required (it is 0..1 Optional) and omits meterStart and timestamp. The context only shows the connectorId and idTag rows."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "The answer has connectorId and idTag but misses meterStart and timestamp. It also wrongly calls reservationId required, though it is 0..1 Optional and needed only for reservations. The context has only the connectorId and idTag rows."
+      }
+    },
+    {
+      "id": "q04",
+      "type": "lookup",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer lists all four required fields. The context shows connectorId, idTag, meterStart and timestamp as 1..1 Required, and reservationId as 0..1 Optional."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer lists exactly connectorId, idTag, meterStart and timestamp, matching the context's 1..1 Required rows, with reservationId shown as 0..1 Optional."
+      }
+    },
+    {
+      "id": "q04",
+      "type": "lookup",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer lists connectorId, idTag, meterStart and timestamp, matching the full 6.45 table in the third context, which marks those four as 1..1 Required."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer lists all four required fields, and the third context has the full 6.45 table marking them 1..1 Required."
+      }
+    },
+    {
+      "id": "q04",
+      "type": "lookup",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "The answer describes Stripe API fields (client_id, amount, currency...) instead of the OCPP StartTransaction.req fields."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "The answer invents a Stripe API StartTransaction with client_id, amount and currency, none of which relate to OCPP."
+      }
+    },
+    {
+      "id": "q05",
+      "type": "lookup",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Only transactionId (and loosely 'transaction dateTime') matches; meterStop is missing and it wrongly lists Transaction.End and Reason as required. The context shows timestamp and transactionId as 1..1 but the meterStop row is cut off."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Only transactionId and a garbled 'transaction dateTime' match; meterStop is missing, 'Transaction.End' (a ReadingContext value) is invented as a field, and Reason is called required when 6.49 marks it 0..1 Optional. Retrieval has the timestamp and transactionId 'Required' rows but not meterStop."
+      }
+    },
+    {
+      "id": "q05",
+      "type": "lookup",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "It names all three fields but types meterStop as boolean (the spec says integer) and lists reason as required (the spec says 0..1). The only evidence retrieved is the sequence-diagram signature, with no cardinality table."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "All three ground-truth fields are listed, but it wrongly calls reason required and types meterStop as boolean (the spec says integer). Retrieval has only the sequence diagram's unbracketed list, which also shows reason, and no field table."
+      }
+    },
+    {
+      "id": "q05",
+      "type": "lookup",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "It gives transactionId, meterStop and timestamp and correctly calls reason optional, matching the retrieved 1..1 Required rows."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "States transactionId, meterStop and timestamp are required and reason is optional, matching the retrieved 6.49 rows 'meterStop integer 1..1 Required', 'timestamp dateTime 1..1 Required' and 'transactionId integer 1..1 Required'."
+      }
+    },
+    {
+      "id": "q05",
+      "type": "lookup",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "It asserts Reason is needed and names none of meterStop, timestamp or transactionId. The context holds only the Reason enum and table-of-contents lines."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "Says the context does not specify, then asserts a Reason field is needed; Reason is optional and none of meterStop/timestamp/transactionId is named. Retrieval holds only the Reason enum and table-of-contents stubs ('6.49. StopTransaction.req .')."
+      }
+    },
+    {
+      "id": "q05",
+      "type": "lookup",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "It describes an invented FpML message (Header, StopPx, TimeInForce) instead of OCPP."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Treats StopTransaction.req as an FpML trading message with invented fields (StopPx, TimeInForce, ExecInst); that is a different domain and none of the ground-truth fields appear."
+      }
+    },
+    {
+      "id": "q06",
+      "type": "lookup",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "It claims the required fields are 'any field defined within the MeterValue class' and never names connectorId or meterValue. No chunk contains the 6.31 field rows."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "Says the context does not specify, then claims the required field is 'any field defined within the MeterValue class'; connectorId is never named and the claim is invented. Retrieval has only the MeterValue class header and MeterValues.conf, with no 6.31 cardinality rows."
+      }
+    },
+    {
+      "id": "q06",
+      "type": "lookup",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "yes",
+        "rationale": "It lists only connectorId (1..1) and omits meterValue, even though the context shows 'meterValue MeterValue 1..* Required'."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Names only connectorId (1..1) and omits meterValue, even though the retrieved chunk says 'meterValue MeterValue 1..* Required'."
+      }
+    },
+    {
+      "id": "q06",
+      "type": "lookup",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "It states connectorId and meterValue, matching the 6.31 table in the context."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "States connectorId and meterValue, matching the retrieved 6.31 rows 'connectorId ... 1..1 Required' and 'meterValue MeterValue 1..* Required'."
+      }
+    },
+    {
+      "id": "q06",
+      "type": "lookup",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Both required fields are present, but it puts transactionId in the 'required' list (tagged optional) and gives meterValue the wrong type MeterValueSample (the spec type is MeterValue)."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Both required fields are named, but it invents the type name 'MeterValueSample' (the context says 'meterValue MeterValue 1..*') and puts transactionId, which is 0..1 Optional, in its list of required fields."
+      }
+    },
+    {
+      "id": "q06",
+      "type": "lookup",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "It answers with Modbus fields (Function Code, Starting Address, Slave Address), not OCPP."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Describes a Modbus read-input-registers frame (Function Code, Starting Address, Slave Address), which is a different protocol with none of the ground-truth fields."
+      }
+    },
+    {
+      "id": "q07",
+      "type": "lookup",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "It asserts 'any valid ChargePointStatus value could potentially be reported', which contradicts the restricted subset Available/Unavailable/Faulted. The context has no 7.7 enum."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "Asserts 'any valid ChargePointStatus value could potentially be reported' for connectorId 0, which contradicts the spec's limit to Available, Unavailable and Faulted. Retrieval has only the connectorId 0 definition and no status values."
+      }
+    },
+    {
+      "id": "q07",
+      "type": "lookup",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "It claims connectorId 0 'can potentially report any status value', contradicting the three-value subset. No enum values were retrieved."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "Claims the main controller 'can potentially report any status value', which contradicts the restriction to Available, Unavailable and Faulted. Retrieval has no ChargePointStatus enum."
+      }
+    },
+    {
+      "id": "q07",
+      "type": "lookup",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "no",
+        "rationale": "It says the context does not specify the values and offers only a vague inference with no specific values. The context has only the StatusNotification.req table, not the ChargePointStatus enum."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "no",
+        "rationale": "Says the context does not specify the values and adds only a vague 'any status related to the overall operation' with no specific wrong values. Retrieval has the StatusNotification.req table but not the 7.7 enum."
+      }
+    },
+    {
+      "id": "q07",
+      "type": "lookup",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "no",
+        "rationale": "It says the context 'does not provide a list of its possible values' and refers the reader to the official specification. The retrieved chunks lack section 7.7."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "no",
+        "rationale": "Says the context does not list the ChargePointStatus values and points to the official documentation, without inventing any. Retrieval lacks section 7.7."
+      }
+    },
+    {
+      "id": "q07",
+      "type": "lookup",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "It invents values such as Authorized, Controlled_Planned_Start and Communication_Error, none of which are OCPP 1.6 ChargePointStatus values."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Invents enum values that are not in OCPP 1.6, such as 'Authorized', 'Controlled_Planned_Start' and 'Temporarily_Out_Of_Order', and omits Available, Unavailable and Faulted."
+      }
+    },
+    {
+      "id": "q08",
+      "type": "lookup",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "partial",
+        "rationale": "It says the context does not specify the allowed values and asserts no wrong list. The context names only 'Local' as a Reason value; the 7.36 value table is cut off after its header."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Says the context does not give the allowed values and repeats only the supported 'Reason SHOULD be set to a correct value'. Retrieval has the 7.36 header and mentions only 'Local' as a value."
+      }
+    },
+    {
+      "id": "q08",
+      "type": "lookup",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "It gives only DeAuthorized, EmergencyStop, EVDisconnected and HardReset as the full list, missing 7 of 11. The context's enum is truncated after HardReset."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Lists only DeAuthorized, EmergencyStop, EVDisconnected and HardReset as if that were the whole enum; the retrieved chunk is cut off after 'HardReset A hard reset command was received.'"
+      }
+    },
+    {
+      "id": "q08",
+      "type": "lookup",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "It lists 9 values but omits SoftReset and UnlockCommand. The retrieved 7.36 table ends at Remote."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Gives 9 of 11 values but misses SoftReset and UnlockCommand; the retrieved enum chunk ends at 'Remote Stopped remotely on request of the user'."
+      }
+    },
+    {
+      "id": "q08",
+      "type": "lookup",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "It gives only DeAuthorized and EmergencyStop, although the context also listed EVDisconnected, HardReset and Local; SoftReset and UnlockCommand etc. are absent from the context too."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Names only DeAuthorized and EmergencyStop, although the retrieved chunk lists five values (through Local) and 11 are required."
+      }
+    },
+    {
+      "id": "q08",
+      "type": "lookup",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "It discusses OPC UA and claims StopTransaction.req has no Reason field, which is a different protocol and gives none of the 11 values."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Treats StopTransaction.req as part of the OPC UA Information Model and cites the OPC Foundation alarms and conditions spec; this is a different protocol and none of the Reason values appear."
+      }
+    },
+    {
+      "id": "q09",
+      "type": "lookup",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer says connectorId 0 designates the main power meter, and context 2 says \"'0' (zero) is used to designate the main powermeter\"."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Answer says connectorId 0 designates the main power meter, matching the retrieved 6.31 text \"'0' (zero) is used to designate the main powermeter.\""
+      }
+    },
+    {
+      "id": "q09",
+      "type": "lookup",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer takes the ClearChargingProfile meaning (\"charging profile for the overall Charge Point\") and never mentions the main powermeter, although context 1 states it."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Answer uses the ClearChargingProfile wording (\"charging profile for the overall Charge Point\") and ignores the retrieved 6.31 text that names the main powermeter."
+      }
+    },
+    {
+      "id": "q09",
+      "type": "lookup",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer names the main power meter and notes the >0 constraint, matching context 1: \"'0' (zero) is used to designate the main powermeter\"."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "States 0 designates the main power meter despite the >0 description, matching both parts of the ground truth and the retrieved 6.31 row."
+      }
+    },
+    {
+      "id": "q09",
+      "type": "lookup",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer says '0' designates the main power meter in MeterValues.req, which context 1 states word for word."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Correctly quotes \"'0' (zero) is used to designate the main power meter\" from the retrieved MeterValues.req definition."
+      }
+    },
+    {
+      "id": "q09",
+      "type": "lookup",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "The answer describes OpenADR and guesses at an aggregate or placeholder meaning; it never names the main powermeter."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Credits the field to \"the OpenADR protocol\" and guesses an aggregate or placeholder meaning; it never says main powermeter."
+      }
+    },
+    {
+      "id": "q10",
+      "type": "lookup",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "The answer says the key controls \"synchronization\" and cites the 24-hour advice; it never says the key sets the inactivity interval before a Heartbeat.req. The contexts hold only the 9.1.10 heading, not its description."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "Claims the key \"controls the synchronization\" and cites the 24-hour advice; the inactivity interval before a Heartbeat.req is missing. The retrieved 9.1.10 chunk is only a header with no description."
+      }
+    },
+    {
+      "id": "q10",
+      "type": "lookup",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "no",
+        "rationale": "The answer calls it the interval between heartbeats but leaves out inactivity. It also wrongly gives the config key the BootNotification.conf role of setting the minimum wait before the next BootNotification."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Gets the heartbeat interval roughly right but wrongly says the config key also sets \"the minimum wait time before sending another BootNotification request\", which belongs to the BootNotification.conf interval field. The key's own description was not retrieved."
+      }
+    },
+    {
+      "id": "q10",
+      "type": "lookup",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "The answer gives the time interval after which a Heartbeat.req is sent but drops the \"of inactivity\" part. Context 4.6 only hints at it: the Charge Point may skip the heartbeat \"when another PDU has been sent ... within the configured heartbeat interval\"."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "partial",
+        "rationale": "\"Time interval after which a Charge Point sends a Heartbeat.req\" matches the ground truth. The retrieved 4.6 text covers the configurable interval and skipping when other PDUs were sent, but never names the HeartbeatInterval key."
+      }
+    },
+    {
+      "id": "q10",
+      "type": "lookup",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "no",
+        "rationale": "The answer says the context has no information on HeartbeatInterval. The contexts are a KeyValue fragment, a table-of-contents line and the Heartbeat PDU tables."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "no",
+        "rationale": "Says the context has nothing on HeartbeatInterval, which is true: the retrieved chunks are the KeyValue class, a table-of-contents line, and the Heartbeat.req/conf fields."
+      }
+    },
+    {
+      "id": "q10",
+      "type": "lookup",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "The answer describes Kubernetes node heartbeats instead of the OCPP Charge Point inactivity interval."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Describes Kubernetes nodes sending heartbeats to a control plane, a different domain from OCPP."
+      }
+    },
+    {
+      "id": "q11",
+      "type": "lookup",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer names transactionId, and context 3 has \"transactionId integer 1..1 Required. The identifier of the transaction which Charge Point is requested to stop\"."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Answer is transactionId, supported by the retrieved row \"transactionId integer 1..1 Required. The identifier of the transaction which Charge Point is requested to stop.\""
+      }
+    },
+    {
+      "id": "q11",
+      "type": "lookup",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer names transactionId, and context 1 has the 6.35 table row \"transactionId integer 1..1 Required\"."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Answer is transactionId, and the retrieved 6.35 chunk lists it as 1..1 Required."
+      }
+    },
+    {
+      "id": "q11",
+      "type": "lookup",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "The answer names transactionId, and context 1 has the 6.35 table row \"transactionId integer 1..1 Required\"."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Answer is transactionId, and the retrieved 6.35 chunk lists it as 1..1 Required."
+      }
+    },
+    {
+      "id": "q11",
+      "type": "lookup",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "The answer says the context does not specify the field, then guesses that status might be required in the .req. status belongs to RemoteStopTransaction.conf, and the contexts are only table-of-contents lines plus the 6.36 .conf table."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "Beyond declining, it suggests \"the status field might also be required in RemoteStopTransaction.req\", a wrong field. Retrieval held only table-of-contents lines and the .conf status row."
+      }
+    },
+    {
+      "id": "q11",
+      "type": "lookup",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "The answer describes SWIFT MT fields such as Originator, Creditor and Amount, and never mentions transactionId."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Invents SWIFT MT 103 fields (Originator, Creditor, Amount, ReasonCode and others), a different domain; transactionId is never mentioned."
+      }
+    },
+    {
+      "id": "q12",
+      "type": "lookup",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "partial",
+        "rationale": "The answer says it cannot give the values. The contexts mention only \"A new Pending member is added to the RegistrationStatus enumeration\"; Accepted and Rejected are not listed."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Says it cannot answer. Retrieval mentions \"a new Pending member\" and Accepted in the interval text, but never Rejected."
+      }
+    },
+    {
+      "id": "q12",
+      "type": "lookup",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "The answer gives only Accepted plus an unnamed second value, missing Pending and Rejected. The contexts mention Accepted and the added Pending member but not Rejected."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Names only Accepted plus an unnamed \"another value\", leaving out Pending (which was in its own context) and Rejected. Retrieval has Accepted and Pending but no Rejected."
+      }
+    },
+    {
+      "id": "q12",
+      "type": "lookup",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "The answer lists \"Accepted and Pending\" as the full set and omits Rejected. The contexts show Accepted in the interval description and \"Added status Pending\", with no Rejected."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Gives \"Accepted and Pending\" as the allowed values and leaves out Rejected. Retrieval shows Accepted and \"Added status Pending\" but has no full enum listing."
+      }
+    },
+    {
+      "id": "q12",
+      "type": "lookup",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "no",
+        "rationale": "The answer says the context gives no RegistrationStatus values. The contexts are table-of-contents lines and a cut-off BootNotification.conf table showing only currentTime."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "no",
+        "rationale": "Says the context lists no RegistrationStatus values, which is true: retrieval was two table-of-contents lines and the BootNotification.conf header with currentTime."
+      }
+    },
+    {
+      "id": "q12",
+      "type": "lookup",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "The answer treats BootNotification.conf as a SUSE Linux file and lists generic statuses such as Registered and Unregistered, not Accepted/Pending/Rejected."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Treats BootNotification.conf as a SUSE Linux file and lists generic invented statuses (Registered, Unregistered, Error, Suspended and more), not the OCPP enum."
+      }
+    },
+    {
+      "id": "q14",
+      "type": "multipart",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Answer says the request carries 'BootNotification.conf, currentTime, interval' and that 'The status field is not included in the response', which contradicts the ground truth. The context only gives the conf field list 'BootNotification.conf(currentTime, interval, status)' and no req fields."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Says the request carries 'BootNotification.conf, currentTime, interval' and that status is not in the response, which contradicts the retrieved 'BootNotification.conf(currentTime, interval, status)'. The context has no request field list."
+      }
+    },
+    {
+      "id": "q14",
+      "type": "multipart",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Answer gives the req fields as idTagInfo, chargeBoxSerialNumber and meterType, puts firmwareVersion etc. in the conf, and never mentions chargePointModel, chargePointVendor, interval or status. The context has the conf diagram '(currentTime, interval, status)' but cuts off before chargePointModel/chargePointVendor."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Invents idTagInfo as a request field, leaves out chargePointModel/chargePointVendor, and moves the request's optional fields into the response. The context has the conf fields but cuts off the start of the request field list."
+      }
+    },
+    {
+      "id": "q14",
+      "type": "multipart",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Answer lists chargePointModel and chargePointVendor unbracketed (the others bracketed as optional) and gives the conf as currentTime, interval, status. This matches the retrieved Figure 13 diagram and the 6.4 table (all three 1..1 Required)."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Lists chargePointModel and chargePointVendor, with the optional fields in brackets, plus conf currentTime, interval and status, matching the retrieved Figure 13 diagram and the 6.4 table."
+      }
+    },
+    {
+      "id": "q14",
+      "type": "multipart",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Answer says both req and conf hold 'only one field named currentTime'. The context has only the 6.4 currentTime row and table-of-contents fragments."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Claims both req and conf carry only 'currentTime'. The retrieval held only the 6.4 currentTime row and table-of-contents fragments."
+      }
+    },
+    {
+      "id": "q14",
+      "type": "multipart",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answer describes a UEFI firmware 'BootNotification protocol' with invented fields (Header, BootLoaderName, etc.), not OCPP."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Invents a UEFI 'BootNotification protocol' with made-up fields such as BootLoaderCodeEntryPoint and SystemTableBase. Nothing in it is OCPP."
+      }
+    },
+    {
+      "id": "q19",
+      "type": "cross_section",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Answer says StartTransaction.req 'contains two fields: connectorId and idTag' and leaves out meterStart, timestamp and reservationId; it ties sending mainly to RemoteStartTransaction. The context's 6.45 table stops after connectorId."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Gives only connectorId and idTag and says it 'contains two fields', leaving out meterStart, timestamp and reservationId. It also mixes in RemoteStartTransaction's connector-id rule. The context was cut off after the connectorId row."
+      }
+    },
+    {
+      "id": "q19",
+      "type": "cross_section",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Answer leaves out the required timestamp field and wrongly types 'meterStart (timestamp)', which is an integer. The context has the diagram '(connectorId, idTag, meterStart, timestamp, [reservationId])' but no statement that the request informs the Central System a transaction has started."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Mislabels meterStart as '(timestamp)' when it is an integer in Wh, and leaves out the separate timestamp field. The diagram listing all fields was retrieved, but the table past idTag and the 'inform the Central System' rule were not."
+      }
+    },
+    {
+      "id": "q19",
+      "type": "cross_section",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Answer lists connectorId, idTag, meterStart (integer), timestamp and 'reservationId (integer, optional)', matching the retrieved 6.45 table, and says it is sent when a transaction is started. The context also has 'transaction has been started, the Charge Point will send a StartTransaction request'."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Gives all five fields with correct types, with reservationId optional, and says it is sent when a transaction starts. The 6.45 table and 'transaction has been started, the Charge Point will send a StartTransaction request' were retrieved."
+      }
+    },
+    {
+      "id": "q19",
+      "type": "cross_section",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Answer leaves out the optional reservationId and narrows sending to 'when initiating a transaction remotely'. The retrieved 6.45 table has all five fields with cardinalities, plus the text 'transaction has been started, the Charge Point will send a StartTransaction request'."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Leaves out the optional reservationId and wrongly limits sending to 'when initiating a transaction remotely', although the full 6.45 table with reservationId 0..1 was retrieved."
+      }
+    },
+    {
+      "id": "q19",
+      "type": "cross_section",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answer invents fields (CurrentLimit, MaxVoltage, Authenticate, AdditionalData), calls IdTag optional, and leaves out meterStart, timestamp and reservationId."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Invents fields (CurrentLimit, MaxVoltage, StartTime, Authenticate, AdditionalData), calls IdTag optional, and leaves out meterStart and timestamp."
+      }
+    },
+    {
+      "id": "q20",
+      "type": "cross_section",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "Answer says StopTransaction.req 'contains no explicitly defined fields', misreading the 'No fields are defined' line that belongs to StatusNotification.conf, and limits sending to soft resets and Reset.req. The context has no field rows and no general 'when a transaction is stopped' rule."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "Says no fields are defined, misreading the StatusNotification.conf 'No fields are defined.' line, and ties sending only to resets. The retrieval had neither the 6.49 table nor the general rule for when it is sent."
+      }
+    },
+    {
+      "id": "q20",
+      "type": "cross_section",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Answer names all six fields and the correct trigger ('notifying the Central System that a transaction has stopped'), but marks only idTag and transactionData as optional, which implies reason is required when it is 0..1. The context only has the Figure 21 diagram, which shows reason unbracketed."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "The field list and the 'when a transaction is stopped' rule are right, but it marks only idTag and transactionData as optional, which implies reason is required. The retrieval had the Figure 21 diagram, where reason has no brackets, but not the 6.49 table."
+      }
+    },
+    {
+      "id": "q20",
+      "type": "cross_section",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Answer calls meterStop 'a boolean value' (it is an integer) and limits sending to stopping 'a charging transaction remotely', although the optional fields are marked correctly. The context has the diagram and 'When a transaction is stopped, the Charge Point SHALL send' but not the 6.49 cardinality table."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "All fields are named, but it invents 'meterStop (a boolean value)' (it is an integer in Wh) and narrows sending to stopping a transaction 'remotely'. The retrieval had 'When a transaction is stopped, the Charge Point SHALL send' but no field table."
+      }
+    },
+    {
+      "id": "q20",
+      "type": "cross_section",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Answer gives idTag (optional), meterStop/timestamp/transactionId (required), reason (optional), transactionData (optional) and 'when a transaction is stopped'. This matches the retrieved 6.49 table and section 4.10 text."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Required meterStop, timestamp and transactionId, optional idTag, reason and transactionData, and sent when a transaction is stopped, all matching the retrieved 6.49 table and 4.10 text."
+      }
+    },
+    {
+      "id": "q20",
+      "type": "cross_section",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answer invents ConnectorId, Id and AuthenticationData, uses OCPP 2.x CSMS terms, and says the message is sent on a CSMS command; meterStop, timestamp, transactionId, idTag and transactionData are missing."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Invents ConnectorId, Id and AuthenticationData, uses OCPP 2.0 CSMS/CS terms, and says it is sent on a CSMS command. meterStop, timestamp and transactionId are missing."
+      }
+    },
+    {
+      "id": "q21",
+      "type": "cross_section",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Answer says Reason 'MAY be omitted' when Local (and wrongly cites StartTransaction.conf for this) but then says the meaning assumed at normal end cannot be determined. The context has the 6.49 row '0..1 Optional... MAY only be omitted when the Reason is \"Local\"' but not the Local = regular termination definition."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Notes the field MAY be omitted when Local (wrongly credited to StartTransaction.conf), but never calls it optional and says the assumed meaning for a normal end cannot be determined. The retrieval had '0..1 Optional... MAY only be omitted when the Reason is \"Local\"' but not the SHOULD-be-assumed rule."
+      }
+    },
+    {
+      "id": "q21",
+      "type": "cross_section",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "Answer never says Reason is optional or omittable only when Local, and suggests a normal end uses an empty or 'unspecified value'. The context lists only DeAuthorized to HardReset, with no cardinality row and no Local value."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "Never says the field is optional or omittable only when Local, and invents 'set to an unspecified value' for a normal end in place of assuming Local. The retrieved enumeration was cut off before Local."
+      }
+    },
+    {
+      "id": "q21",
+      "type": "cross_section",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Answer says Reason 'should be assumed to be Local' for a normal end (and wrongly lumps remote user stops in with it) but never says the field is optional or 'MAY only be omitted when Local'. The retrieved 6.49 row and 7.36 'Local... regular termination' together cover the ground truth."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Gets the enum values and the assumed Local for a normal end, but never says Reason is optional or omittable only when Local, and wrongly treats remote user stops as Local. The retrieval had the 0..1 row and the enum but not the 4.10 SHOULD-assume sentence."
+      }
+    },
+    {
+      "id": "q21",
+      "type": "cross_section",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Answer says a normal end should be assumed 'Local' but leaves out that Reason is optional (0..1) and may only be omitted when Local. The retrieved 6.49 row has that, and the 7.36 enum marks Local as a regular termination."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "States a normal end should be assumed Local, but leaves out that Reason is optional and MAY only be omitted when Local, even though that 6.49 row was retrieved. The SHOULD-be-assumed sentence was not."
+      }
+    },
+    {
+      "id": "q21",
+      "type": "cross_section",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answer describes FHIR TransactionCapabilityRequest and invented codes like '2.0.0', not OCPP StopTransaction.req."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answers about FHIR, inventing a 'TransactionCapabilityRequest resource' and codes such as '2.0.0'. It is the wrong domain entirely."
+      }
+    },
+    {
+      "id": "q22",
+      "type": "cross_section",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Only covers the MeterValue/sampledValue payload; omits connectorId and says sampling is 'not explicitly defined', never naming MeterValueSampleInterval or MeterValuesSampledData."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Mentions timestamped sampledValue elements but says sampling is 'not explicitly defined' and omits connectorId, MeterValueSampleInterval and MeterValuesSampledData; contexts only cover the MeterValue element structure."
+      }
+    },
+    {
+      "id": "q22",
+      "type": "cross_section",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Describes the MeterValueSampleInterval behaviour (seconds, from transaction start, 0 = none) and the sampled-value collection, but omits connectorId and MeterValuesSampledData's role; contexts lack connectorId."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Gives the interval in seconds from transaction start (misread as the time 'between acquisition and transmission') without naming MeterValueSampleInterval, and omits connectorId and MeterValuesSampledData; context defines the interval key but not connectorId."
+      }
+    },
+    {
+      "id": "q22",
+      "type": "cross_section",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Names MeterValueSampleInterval and MeterValuesSampledData and the MeterValue elements, but omits connectorId and wrongly says the req 'carries a comma-separated list of measurands' (that is a config key)."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Names MeterValueSampleInterval and MeterValuesSampledData, but wrongly says the PDU 'carries a comma-separated list of measurands (MeterValuesSampledData)', a config key, and omits connectorId; the context's field list is cut off before connectorId."
+      }
+    },
+    {
+      "id": "q22",
+      "type": "cross_section",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Names both config keys but misstates the payload as 'a comma-separated list of measurands', omits connectorId and meterValue as the field; contexts have no connectorId field."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Claims MeterValues.req 'carries a comma-separated list of measurands', mixing up the config key with the PDU, and omits connectorId; context covers both config keys and the MeterValue class but not connectorId."
+      }
+    },
+    {
+      "id": "q22",
+      "type": "cross_section",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Describes MeterValues.req as a Bluetooth Low Energy Heart Rate profile characteristic, which is the wrong domain."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Describes MeterValues.req as a Bluetooth Low Energy (BLE) Heart Rate profile characteristic with 1 Hz RR-interval sampling, which is a different domain entirely."
+      }
+    },
+    {
+      "id": "q23",
+      "type": "cross_section",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Correctly says connectorId 0 is the main controller but says it cannot list the allowed statuses (Available, Unavailable, Faulted); the context is cut off at 'subset of the'."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Correctly says connectorId 0 is the main controller but says it 'cannot provide a detailed list' of statuses; the context sentence 'is a subset of the' is cut off before Available/Unavailable/Faulted."
+      }
+    },
+    {
+      "id": "q23",
+      "type": "cross_section",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Gets connectorId 0 = Charge Point main controller but says the allowed ChargePointStatus values are not specified; the contexts have no list of values."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Identifies the main controller for connectorId 0 but says the allowed ChargePointStatus values 'are not explicitly specified'; the contexts never list Available/Unavailable/Faulted."
+      }
+    },
+    {
+      "id": "q23",
+      "type": "cross_section",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Gets connectorId 0 = main controller but does not give Available/Unavailable/Faulted; the 6.47 table in the context does not list the subset."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "States 'Id 0 is used if the status is for the Charge Point main controller' but says the allowed values are not listed; the context has the 6.47 field table but not the 7.7 subset."
+      }
+    },
+    {
+      "id": "q23",
+      "type": "cross_section",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Main-controller meaning is correct, but it wrongly lists Preparing, Charging, SuspendedEV, SuspendedEVSE, Finishing as main-controller statuses and leaves out Available and Faulted."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Invents Preparing, Charging, SuspendedEV, SuspendedEVSE, Finishing and Unavailable as main-controller statuses, which contradicts the ground truth's 'only Available, Unavailable or Faulted'; the context lacks the subset list."
+      }
+    },
+    {
+      "id": "q23",
+      "type": "cross_section",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Invents non-OCPP statuses (IDLE, IN_USE, OUT_OF_ORDER, SESSION_ACTIVE, ...) from a made-up 'ChargePoint Protocol Specification (version 5-16)' and never limits them to Available/Unavailable/Faulted."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Cites a fake 'ChargePoint Protocol Specification (version 5-16)' and invents enums (IDLE, IN_USE, OUT_OF_ORDER, SESSION_ACTIVE, ...) that are not OCPP 1.6 ChargePointStatus values."
+      }
+    },
+    {
+      "id": "q24",
+      "type": "unanswerable",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "na",
+        "rationale": "Says no specific timeout is given and that 'implementations are free to choose their own timeout interval', which matches not specified, and invents no value."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "na",
+        "rationale": "Invents no value and says 'implementations are free to choose their own timeout interval', which amounts to saying no exact timeout is mandated."
+      }
+    },
+    {
+      "id": "q24",
+      "type": "unanswerable",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Only says 'The provided context does not specify' a timeout; it never says the spec itself does not define one."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Only says 'The provided context does not specify an exact timeout', never saying OCPP 1.6 itself leaves it undefined."
+      }
+    },
+    {
+      "id": "q24",
+      "type": "unanswerable",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Only says 'The context does not provide specific information' and does not say OCPP 1.6 leaves it unspecified."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Only says 'The context does not provide specific information' about the timeout, without saying the spec does not define one."
+      }
+    },
+    {
+      "id": "q24",
+      "type": "unanswerable",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Only says 'The context does not provide information' about a timeout, framed as a gap in the context rather than in the spec."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Only says 'The context does not provide information about a specific timeout', a statement about the context rather than the spec."
+      }
+    },
+    {
+      "id": "q24",
+      "type": "unanswerable",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "hallucinated",
+        "retrieval_contains_answer": "na",
+        "rationale": "Claims OCPP 1.6 '(version 2.0.3)' gives the Central System 'up to 15 seconds' with that as the default, a timeout the spec does not define."
+      },
+      "panel_b": {
+        "grade": "hallucinated",
+        "retrieval_contains_answer": "na",
+        "rationale": "Claims the Central System 'has up to 15 seconds' per a nonexistent 'OCPP 1.6 specification (version 2.0.3)'."
+      }
+    },
+    {
+      "id": "q25",
+      "type": "unanswerable",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Says 'The provided context does not specify an exact timeout' and quotes the Rejected retry rule, but never says the spec does not define a timeout."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Says 'The provided context does not specify an exact timeout' and invents no value, but never says OCPP 1.6 leaves it undefined."
+      }
+    },
+    {
+      "id": "q25",
+      "type": "unanswerable",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Says 'The context does not provide a specific timeout value' and correctly paraphrases the interval-zero rule; framed as missing context, with no value invented."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Says 'The context does not provide a specific timeout value' and accurately restates the zero-interval behaviour, without saying the spec does not define a timeout."
+      }
+    },
+    {
+      "id": "q25",
+      "type": "unanswerable",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Says the context lacks a timeout and restates the interval field's minimum-wait rule accurately, with no value invented."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Scopes the absence to 'the context' and correctly paraphrases the interval-field behaviour, inventing no timeout."
+      }
+    },
+    {
+      "id": "q25",
+      "type": "unanswerable",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Says 'The context does not provide a specific timeout value' and only adds the retry-interval rules from the spec, with no timeout invented."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Says 'The context does not provide a specific timeout value' and only restates the retry-interval rules, with no claim that the spec leaves it undefined."
+      }
+    },
+    {
+      "id": "q25",
+      "type": "unanswerable",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "hallucinated",
+        "retrieval_contains_answer": "na",
+        "rationale": "Asserts a mandated 5-second maximum response time and cites a made-up 'section 7.4.1.1 ... Timeouts subsection'."
+      },
+      "panel_b": {
+        "grade": "hallucinated",
+        "retrieval_contains_answer": "na",
+        "rationale": "Claims 'a maximum of 5 seconds' citing a nonexistent 'section 7.4.1.1 ... Timeouts subsection' of a fake 'version 2.0.3'."
+      }
+    },
+    {
+      "id": "q27",
+      "type": "unanswerable",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Only says \"The provided context does not contain information\" and never says OCPP 1.6 itself sets no maximum."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Only says 'The provided context does not contain information'; it never says the OCPP 1.6 spec itself sets no maximum."
+      }
+    },
+    {
+      "id": "q27",
+      "type": "unanswerable",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "\"The provided context does not specify...\" is a statement about the context, not a statement that the spec sets no limit."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "'The provided context does not specify...' only talks about the retrieved context, not about whether the spec defines a limit."
+      }
+    },
+    {
+      "id": "q27",
+      "type": "unanswerable",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "\"The context does not provide information\" is context-only; it never says the specification defines no maximum."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "'The context does not provide information...' is a context-only refusal and does not say the spec is silent."
+      }
+    },
+    {
+      "id": "q27",
+      "type": "unanswerable",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Only says the provided context lacks the information, without saying OCPP 1.6 does not specify a maximum."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answers 'The provided context does not contain information...' without saying OCPP 1.6 sets no maximum."
+      }
+    },
+    {
+      "id": "q27",
+      "type": "unanswerable",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "na",
+        "rationale": "Says \"there isn't a specific limit set\" in OCPP 1.6 and invents no number; \"up to the manufacturer\" just follows from the spec setting no limit."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "na",
+        "rationale": "Says the spec has 'no specific limit' and leaves it to the manufacturer; it invents no number and no spec-mandated behaviour."
+      }
+    },
+    {
+      "id": "q13",
+      "type": "cross_section",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Gets idTag (required) and optional connector id, but misses chargingProfile, confuses the reply with StartTransaction, and gives no Accepted/Rejected; the contexts have the idTag SHALL / connector id MAY text but nothing on the status."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Gives idTag and the optional connector id, but leaves out chargingProfile, never gives Accepted/Rejected, and wrongly talks about StartTransaction.req's status; the retrieved chunks have idTag SHALL and connector id MAY but no status values."
+      }
+    },
+    {
+      "id": "q13",
+      "type": "cross_section",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Says the request \"may include an idTag\" (it is required), leaves out connectorId, chargingProfile and Accepted/Rejected, and wrongly ties the status to AuthorizeRemoteTxRequests; the contexts only hold a fragment on status meaning."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Says the request 'may include an idTag' (idTag is required), leaves out connectorId and chargingProfile, and wrongly says the response status depends on AuthorizeRemoteTxRequests; Accepted/Rejected never appears."
+      }
+    },
+    {
+      "id": "q13",
+      "type": "cross_section",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Correctly lists idTag, optional connectorId and chargingProfile and says the status shows whether the request was accepted, but never names Accepted/Rejected; the contexts have \"RemoteStartTransaction.req(idTag, [connectorId], [chargingProfile])\" but not the enum."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Lists idTag, [connectorId] and [chargingProfile] and says the status shows whether the request was accepted, but never gives the Accepted/Rejected values; the retrieved chunks have the sequence diagram but not the RemoteStartStopStatus enum."
+      }
+    },
+    {
+      "id": "q13",
+      "type": "cross_section",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Fields are right but Accepted/Rejected is missing, and it wrongly says the status \"may indicate whether authorization was obtained\"; the contexts give the fields and status meaning but no enum values."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Fields match the diagram, but it gives no Accepted/Rejected values and invents that the status 'may indicate whether authorization was obtained' (the spec says the conf is sent on receipt, before authorization)."
+      }
+    },
+    {
+      "id": "q13",
+      "type": "cross_section",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answers about an automotive remote keyless-entry protocol with HTTP-style codes (200/403/...), not OCPP idTag/connectorId/chargingProfile or Accepted/Rejected."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Describes an invented automotive keyless-entry 'RST protocol' with MAC address, nonce and HTTP 200/403/500 codes, not OCPP."
+      }
+    },
+    {
+      "id": "q15",
+      "type": "multipart",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "Gives ReserveNow.conf's field (\"status ReservationStatus 1..1\") and none of connectorId, expiryDate, idTag, parentIdTag or reservationId; the contexts have only the 6.37 heading and the .conf table."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "Says ReserveNow.req has a single 'status ReservationStatus 1..1' field, which belongs to ReserveNow.conf; the retrieved chunks have only the 6.37 heading and the .conf table."
+      }
+    },
+    {
+      "id": "q15",
+      "type": "multipart",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "All five fields and cardinalities match, but it says \"contains three fields\" and calls connectorId/expiryDate 1..1 only \"likely\"; the contexts have the sequence diagram with [parentIdTag] and table rows for only parentIdTag 0..1 and reservationId 1..1."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Lists all five fields with cardinalities that match, but says 'three fields' and marks connectorId and expiryDate only as 'likely 1..1'; the retrieved chunks give the diagram plus table rows for parentIdTag and reservationId only."
+      }
+    },
+    {
+      "id": "q15",
+      "type": "multipart",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Correctly gives idTag, expiryDate and connectorId as 1..1 but leaves out parentIdTag (0..1) and reservationId (1..1), although the retrieved table lists all five."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Lists only idTag, expiryDate and connectorId (all 1..1) and leaves out parentIdTag 0..1 and reservationId 1..1, although the retrieved table has every row."
+      }
+    },
+    {
+      "id": "q15",
+      "type": "multipart",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "no",
+        "rationale": "Says \"The provided context does not specify the exact fields\"; the contexts are just the 6.37 heading and table-of-contents lines."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "no",
+        "rationale": "Says the context 'does not specify the exact fields or their cardinalities'; the retrieved chunks are only the 6.37/6.38 headings."
+      }
+    },
+    {
+      "id": "q15",
+      "type": "multipart",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Describes an invented OMA Device Management message (Request-Type, Device-Id, etc.) instead of the OCPP ReserveNow.req fields."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Invents an OMA Device Management message with Request-Token, Device-Id, Time-Slot and so on, none of which are OCPP ReserveNow fields."
+      }
+    },
+    {
+      "id": "q16",
+      "type": "multipart",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Names the required \"type ResetType\" field but never says it is Hard or Soft; the contexts have the 1..1 Required row but not the Hard/Soft values."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Gives the required 'type ResetType' field but never says the value is Hard or Soft; the retrieved chunks have the 1..1 row but no hard/soft values."
+      }
+    },
+    {
+      "id": "q16",
+      "type": "multipart",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Says the required type field gives the type of reset but leaves out Hard/Soft, even though the context says \"The Central System can request a hard or a soft reset.\""
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Says the required type field gives 'the type of reset' but leaves out Hard/Soft, although the retrieved chunks say 'The Central System can request a hard or a soft reset'."
+      }
+    },
+    {
+      "id": "q16",
+      "type": "multipart",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "States the required type field sets the reset type, \"which can be either a hard or a soft reset\", matching the retrieved ResetType enum (Hard, Soft)."
+      },
+      "panel_b": {
+        "grade": "correct",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Says the required type field specifies the reset type, 'either a hard or a soft reset', which matches the retrieved ResetType enum (Hard, Soft)."
+      }
+    },
+    {
+      "id": "q16",
+      "type": "multipart",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Names the required type field but leaves out Hard/Soft, although the retrieved ResetType enumeration lists both values."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "yes",
+        "rationale": "Gives the required type field but not the Hard/Soft values, although the retrieved chunks include the ResetType enum with Hard and Soft."
+      }
+    },
+    {
+      "id": "q16",
+      "type": "multipart",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Describes a CoAP message with Confirmable/Non-confirmable types, not the OCPP Reset.req type field with Hard/Soft."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Describes an invented CoAP 'Reset.req' with Confirmable/Non-confirmable types and 'Code: 2.05 (Reset)', not the OCPP Hard/Soft ResetType."
+      }
+    },
+    {
+      "id": "q17",
+      "type": "multipart",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Answer lists 'Transaction.End' and 'Reason' as the fields and leaves out idTag, meterStop, timestamp and transactionId; the context only has the empty 6.49 table header plus 'optional TransactionData element'."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "partial",
+        "rationale": "The answer lists 'Transaction.End' and 'Reason' (a ReadingContext value and an enum name) as mandatory fields and misses idTag, meterStop, timestamp and transactionId; the context has only the empty 6.49 table header plus 'MAY contain an optional TransactionData element'."
+      }
+    },
+    {
+      "id": "q17",
+      "type": "multipart",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "All six field names appear, but it says reason is 'required' (the spec says optional), gives no cardinality for timestamp or transactionId, and calls meterStop 'boolean'; the context has only the signature 'StopTransaction.req(meterStop, timestamp, transactionId, reason, [idTag], [transactionData])'."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Gets meterStop required and idTag/transactionData optional, but gives no cardinality for timestamp or transactionId, calls reason required, types meterStop as boolean, and mixes up transactionData with the StopTxnAlignedData CSL key; the diagram lists all six fields but leaves reason unbracketed."
+      }
+    },
+    {
+      "id": "q17",
+      "type": "multipart",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Answer lists idTagInfo (a StopTransaction.conf field), Transaction.End and Reason (1), and none of meterStop, timestamp, transactionId or idTag; the context only says TransactionData is optional."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "partial",
+        "rationale": "The answer gives idTagInfo (a StopTransaction.conf field), Transaction.End and Reason, so none of the ground-truth fields appear; the context has only the conf table, the Reason enum and 'optional TransactionData element'."
+      }
+    },
+    {
+      "id": "q17",
+      "type": "multipart",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "meterStop, timestamp and transactionId are correctly required and idTag and transactionData optional, but reason is wrongly called 'Cardinality: 1 (required)' and meterStop typed as boolean; the context gives only the bracketed signature."
+      },
+      "panel_b": {
+        "grade": "partial",
+        "retrieval_contains_answer": "partial",
+        "rationale": "All six fields are named with the right cardinality except reason, which it calls 'Cardinality: 1 (required)' when the ground truth says optional; it also invents a boolean type for meterStop. The context is the 4.10 diagram, where reason has no brackets."
+      }
+    },
+    {
+      "id": "q17",
+      "type": "multipart",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answer describes a 'Visa protocol' message (Version, MAC, TRH), not OCPP StopTransaction.req."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Describes an invented 'Visa protocol' message (MAC, TRH, Issuer Response Data) that has nothing to do with OCPP."
+      }
+    },
+    {
+      "id": "q18",
+      "type": "multipart",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Only connectorId is named, and its cardinality is given as '0 or greater' (a misreading of 'connectorId >= 0'), which contradicts required; errorCode, status and the four optional fields are missing. The retrieved table is cut off after connectorId."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Only connectorId is named, and 'cardinality of connectorId is 0 or greater' mistakes the value rule 'connectorId >= 0' for a cardinality; errorCode, status, info, timestamp and the vendor fields are all missing. The context shows only the first table row with no CARD value."
+      }
+    },
+    {
+      "id": "q18",
+      "type": "multipart",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "Answer gives 'status 1..1' and 'data 0..1', taken from the DataTransfer.conf table, and misses connectorId, errorCode, info, timestamp, vendorId and vendorErrorCode; no StatusNotification.req table was retrieved."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "Its 'status 1..1' and 'data 0..1' come from the DataTransfer.conf table, not StatusNotification.req; the context has no rows from the StatusNotification.req table."
+      }
+    },
+    {
+      "id": "q18",
+      "type": "multipart",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Answer says the context has no information, yet the first chunk shows the end of the 6.47 table: 'timestamp dateTime 0..1', 'vendorId ... 0..1', 'vendorErrorCode ... 0..1'."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "partial",
+        "rationale": "Says the context has no information and asserts nothing, even though the retrieved chunk has the end of the 6.47 table: 'timestamp dateTime 0..1', 'vendorId ... 0..1', 'vendorErrorCode ... 0..1'."
+      }
+    },
+    {
+      "id": "q18",
+      "type": "multipart",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "Answer claims a single field 'status' of type DiagnosticsStatus, taken from DiagnosticsStatusNotification.req; the context has only table-of-contents entries for 6.47 and 6.48."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "no",
+        "rationale": "Claims a single 'status' field of type DiagnosticsStatus, borrowed from DiagnosticsStatusNotification.req, and misreads 1..1 as 'one or more'; the context is only table-of-contents lines plus the Diagnostics and Firmware tables."
+      }
+    },
+    {
+      "id": "q18",
+      "type": "multipart",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answer describes an 'MQTT protocol' message with TopicFilter, Level and QoS, not OCPP StatusNotification.req."
+      },
+      "panel_b": {
+        "grade": "incorrect",
+        "retrieval_contains_answer": "na",
+        "rationale": "Invents an MQTT subscription message with TopicName, Level and QoS fields, a different protocol altogether."
+      }
+    },
+    {
+      "id": "q26",
+      "type": "unanswerable",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "hallucinated",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answer states the Charge Point 'SHOULD send this message again' up to a retry limit for a complete non-response, which the spec leaves to the OCPP JSON and SOAP specifications."
+      },
+      "panel_b": {
+        "grade": "hallucinated",
+        "retrieval_contains_answer": "na",
+        "rationale": "States the Charge Point 'SHOULD send this message again' when the Central System never responds, treating silence as a 'failure to process' even though section 3.7.1 leaves that definition to the JSON and SOAP specs."
+      }
+    },
+    {
+      "id": "q26",
+      "type": "unanswerable",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "hallucinated",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answer applies the BootNotification Rejected rule ('SHALL NOT respond to any Central System initiated message') as the required behaviour, and never says the spec does not define it."
+      },
+      "panel_b": {
+        "grade": "hallucinated",
+        "retrieval_contains_answer": "na",
+        "rationale": "Applies the BootNotification Rejected rule ('SHALL NOT respond to any Central System initiated message while Rejected') to a missing response to a transaction message, stating it as required."
+      }
+    },
+    {
+      "id": "q26",
+      "type": "unanswerable",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "hallucinated",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answer states mandated behaviour taken from the Rejected/Pending registration rules ('SHALL NOT send request messages ... unless ... TriggerMessage.req') as if it covered a non-response."
+      },
+      "panel_b": {
+        "grade": "hallucinated",
+        "retrieval_contains_answer": "na",
+        "rationale": "Presents the Rejected and Pending registration rules (SHALL NOT respond, send requests only after a TriggerMessage.req) as the required behavior when there is no response; nothing in the spec says that."
+      }
+    },
+    {
+      "id": "q26",
+      "type": "unanswerable",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "hallucinated",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answer states the Charge Point 'MUST queue' and hold new transaction-related messages as the required response to non-response (that text covers being offline), and only adds that the context lacks further detail."
+      },
+      "panel_b": {
+        "grade": "hallucinated",
+        "retrieval_contains_answer": "na",
+        "rationale": "Asserts the Charge Point 'MUST queue' transaction messages, borrowing the 3.7 rule for when it is offline, as the required behavior for no response, and never says the spec leaves this undefined."
+      }
+    },
+    {
+      "id": "q26",
+      "type": "unanswerable",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "hallucinated",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answer invents required retransmission, aborting the transaction and logging 'as defined in the OCPP specifications'."
+      },
+      "panel_b": {
+        "grade": "hallucinated",
+        "retrieval_contains_answer": "na",
+        "rationale": "Invents behavior 'as defined in the OCPP specifications': retransmit, time out and abort the transaction, log the error, and notify the user."
+      }
+    },
+    {
+      "id": "q28",
+      "type": "unanswerable",
+      "configuration": "fixed_256",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answer only says 'The provided context does not specify' and invents no timeout or retry count, but never says OCPP 1.6 itself does not define one."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Says 'the provided context does not specify' and invents no timeout, but also wrongly calls the Rejected retry interval 'implementation-dependent' when it comes from the BootNotification.conf interval field."
+      }
+    },
+    {
+      "id": "q28",
+      "type": "unanswerable",
+      "configuration": "fixed_512",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answer says 'The provided context does not specify a timeout and retry behavior', which is about the context rather than the specification."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Only says 'the provided context does not specify' any timeout or retry behavior for non-transaction messages, and invents no values."
+      }
+    },
+    {
+      "id": "q28",
+      "type": "unanswerable",
+      "configuration": "fixed_1024",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answer says the context does not specify it and correctly notes that only transaction-related retries (TransactionMessageAttempts/RetryInterval) are defined, but never says the spec leaves it undefined."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Says the context does not specify it and correctly notes that only transaction messages get TransactionMessageAttempts and TransactionMessageRetryInterval; no invented values."
+      }
+    },
+    {
+      "id": "q28",
+      "type": "unanswerable",
+      "configuration": "semantic",
+      "panel_a": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answer says 'The context provided does not specify' and points to the JSON/SOAP specifications without inventing a value, so it is context-scoped only."
+      },
+      "panel_b": {
+        "grade": "declined",
+        "retrieval_contains_answer": "na",
+        "rationale": "Says the context does not specify it and points to the JSON and SOAP specs without inventing a timeout, although the spec defers only the definition of failure for transaction messages to those documents."
+      }
+    },
+    {
+      "id": "q28",
+      "type": "unanswerable",
+      "configuration": "no_retrieval",
+      "panel_a": {
+        "grade": "hallucinated",
+        "retrieval_contains_answer": "na",
+        "rationale": "Answer invents mandated values attributed to OCPP 1.6: a 5-second acknowledgement, 20/30-second retransmission delays and a 10-retry limit."
+      },
+      "panel_b": {
+        "grade": "hallucinated",
+        "retrieval_contains_answer": "na",
+        "rationale": "Invents specific numbers attributed to OCPP 1.6: a 5 s acknowledgement, 20 s and 30 s retransmit delays, a 10-retry limit, a 120 s heartbeat loss and 30 s/60 s reconnect times."
+      }
+    }
+  ]
+}

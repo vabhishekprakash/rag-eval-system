@@ -36,6 +36,10 @@ Each configuration retrieves the top 3 chunks and answers with Mistral 7B (`mist
 
 These are means from one run on 2026-09-14, which took 5 h 28 min on a 4 GB GTX 1050 Ti. No repeat runs were made, so run-to-run variance is unmeasured. The summary scores are in `evaluation_results.json`, written by `evaluation/run_eval.py`. Every answer, its retrieved chunks and its per-question scores are in `evaluation/per_question_results.json`, which was exported from the RAGAs result tables by a wrapper around that run; `run_eval.py` itself does not write it.
 
+### Correctness grading
+
+Both RAGAs metrics rank the no-retrieval baseline above every retrieval configuration. Because neither metric compares answers to the ground truth, all 140 answers (28 questions × 5 configurations) were also graded against the reference answers by two LLM panels. Both panels were the same model, Claude Opus 5 (`claude-opus-5`), run twice with the same rubric and a different instruction each, which is weaker evidence than two different models. The panels ran without seeing each other's grades, but they were not blind to configuration: each grader saw all five answers to a question labelled by configuration, with the retrieved chunks and the RAGAs scores. They agreed on 138 of 140 grades. The no-retrieval baseline was graded correct on 0 of 23 answerable questions; fixed 1024 was graded correct on 10 or 11 of 23, the two panels differing on one item (q10). One panel's instruction named failure patterns already seen in baseline answers, such as descriptions of other protocols; the other panel's did not, and both graded the baseline 0 of 23. These grades come from a model, not people, and are reported for the direction of the difference rather than as exact accuracy. The rubric, both instructions and every grade are in `evaluation/answer_grades.json`.
+
 ### How to read these numbers
 
 - **The baseline's high answer relevancy does not mean retrieval hurts.** Answer relevancy scores whether an answer addresses the question, not whether it is correct, and an answer can address the question and still be wrong. Asked which fields BootNotification.req requires (q02), the baseline describes the ACPI firmware specification; with retrieval, fixed 512 names `idTagInfo` and fixed 1024 names BootNotification.conf fields, yet they score 0.693 and 0.729.
@@ -108,7 +112,8 @@ rag-eval-system/
 │   ├── metrics.py          # RAGAs evaluation (faithfulness, answer relevancy)
 │   ├── run_eval.py         # runs the four chunking configurations and the no-retrieval baseline
 │   ├── eval_set.json       # 28 questions with ground-truth answers
-│   └── per_question_results.json  # answers, retrieved chunks and scores from the published run
+│   ├── per_question_results.json  # answers, retrieved chunks and scores from the published run
+│   └── answer_grades.json  # LLM-panel correctness grades of those answers
 ├── data/corpus/            # OCPP 1.6 specification PDFs used by the evaluation
 ├── docs/demo.gif           # app demo shown above
 ├── evaluation_results.json # summary scores from the published run
