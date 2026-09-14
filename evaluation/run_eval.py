@@ -26,7 +26,10 @@ def run_experiment(strategy="fixed", chunk_size=512, chunk_overlap=64):
     Returns:
         Dictionary with results and configuration
     """
-    print(f"\nRunning experiment: strategy={strategy}, chunk_size={chunk_size}")
+    if strategy == "fixed":
+        print(f"\nRunning experiment: strategy={strategy}, chunk_size={chunk_size}")
+    else:
+        print(f"\nRunning experiment: strategy={strategy}")
     
     # Load and chunk documents
     docs = load_documents(CORPUS_DIR)
@@ -69,7 +72,7 @@ def run_experiment(strategy="fixed", chunk_size=512, chunk_overlap=64):
         "config": {
             "strategy": strategy,
             "chunk_size": chunk_size if strategy == "fixed" else None,
-            "chunk_overlap": chunk_overlap,
+            "chunk_overlap": chunk_overlap if strategy == "fixed" else None,
             "num_chunks": len(chunks)
         },
         "metrics": formatted
